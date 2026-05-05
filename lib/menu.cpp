@@ -51,7 +51,7 @@ Button GenerateTestButton(
     };
 
     return button;    
-}
+};
 
 Menu GenerateTestMenu(float width, float height)
 {
@@ -101,4 +101,22 @@ Menu GenerateTestMenu(float width, float height)
     
     Debug("Return");
     return menu;
+};
+
+VOID CheckMouseCollisions(Menu& menu, float mouseX, float mouseY)
+{
+    for(Button& btn : menu.buttons) 
+    {
+        sf::Vector2 btnPos = btn.background.getPosition();
+        sf::Vector2 btnSize = btn.background.getSize();
+        bool btnContainsX = mouseX >= btnPos.x && mouseX < (btnPos.x + btnSize.x);
+        bool btnContainsY = mouseY >= btnPos.y && mouseY < (btnPos.y + btnSize.y);
+        if (btnContainsX && btnContainsY)
+        {
+            btn.text.setFillColor(sf::Color::White); 
+        }
+        else {
+            btn.text.setFillColor(sf::Color::Black); 
+        }
+    } 
 };

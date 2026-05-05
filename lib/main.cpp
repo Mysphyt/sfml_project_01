@@ -7,10 +7,12 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/Window.hpp>
 
-#include "menu.h"
+#include "event.h"
 
 CONST UINT WIN_WIDTH = 800;
 CONST UINT WIN_HEIGHT = 600;
+
+extern Menu currentMenu;
 
 enum class GameState {
     Menu
@@ -23,7 +25,7 @@ int main()
     // create the window
     sf::RenderWindow window(sf::VideoMode({WIN_WIDTH, WIN_HEIGHT}), "My window");
 
-    Menu testMenu = GenerateTestMenu(WIN_WIDTH, WIN_HEIGHT);// Menu { 0, {}, testMenuBackground };
+    currentMenu = GenerateTestMenu(WIN_WIDTH, WIN_HEIGHT);// Menu { 0, {}, testMenuBackground };
 
     // Target frame rate
     int FPS = 60;
@@ -70,7 +72,7 @@ int main()
 
         // draw everything here...
         // window.draw(...);
-        RenderMenu(window, testMenu);
+        RenderMenu(window, currentMenu);
         
         // end the current frame
         window.display();

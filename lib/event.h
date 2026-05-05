@@ -7,6 +7,7 @@
 #include <SFML/Graphics.hpp>
 
 #include "log.h"
+#include "menu.h"
 
 const void onClose (sf::RenderWindow& window, const sf::Event::Closed& closed);
 

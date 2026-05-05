@@ -7,8 +7,8 @@
 #include <SFML/Graphics.hpp>
 #include <list>
 
-#include "event.h"
 #include "globals.h"
+#include "log.h"
 
 struct Button {
     sf::Text text;
@@ -23,6 +23,8 @@ struct Menu {
 VOID RenderMenu(sf::RenderWindow&, Menu);
 
 VOID RenderButton(sf::RenderWindow&, Button);
+
+VOID CheckMouseCollisions(Menu& menu, float mouseX, float mouseY);
 
 Menu GenerateTestMenu(float width, float height);
 
