@@ -1,3 +1,6 @@
+#ifndef EVENT_H
+#define EVENT_H
+
 #include <iostream>
 #include <format>
 #include <SFML/Window.hpp>
@@ -18,3 +21,5 @@ const void onMouseWheelScrolled (sf::RenderWindow &window, const sf::Event::Mous
 const void onMouseButtonPressed (sf::RenderWindow &window, const sf::Event::MouseButtonPressed& mouseButtonPressed);
 
 const void onMouseMoved (sf::RenderWindow &window, const sf::Event::MouseMoved& mouseMoved);
+
+#endif

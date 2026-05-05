@@ -1,5 +1,7 @@
 #include "menu.h"
 
+sf::Font DEFAULT_BUTTON_FONT;
+
 VOID RenderButton(sf::RenderWindow& window, Button button)
 {
     window.draw(button.background); 
@@ -55,7 +57,11 @@ Menu GenerateTestMenu(float width, float height)
 {
     Debug("Generating Test Menu...");
 
-    DEFAULT_BUTTON_FONT.openFromFile("myfont.ttf");
+    bool font_loaded = DEFAULT_BUTTON_FONT.openFromFile("myfont.ttf");
+
+    if(!font_loaded){
+        std::cout << "FONT LOAD FAILED!!!";
+    }
 
     sf::RectangleShape menuBackground({0,0});
     menuBackground.setSize({width, height});

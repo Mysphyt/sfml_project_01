@@ -1,3 +1,6 @@
+#ifndef MENU_H
+#define MENU_H
+
 #include <iostream>
 #include <string>
 #include <Windows.h>
@@ -5,8 +8,7 @@
 #include <list>
 
 #include "event.h"
-
-sf::Font DEFAULT_BUTTON_FONT;
+#include "globals.h"
 
 struct Button {
     sf::Text text;
@@ -23,3 +25,5 @@ VOID RenderMenu(sf::RenderWindow&, Menu);
 VOID RenderButton(sf::RenderWindow&, Button);
 
 Menu GenerateTestMenu(float width, float height);
+
+#endif

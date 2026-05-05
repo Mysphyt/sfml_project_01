@@ -1,3 +1,6 @@
+#ifndef LOG_H
+#define LOG_H
+
 #include <string>
 #include <sstream>
 #include <iostream>
@@ -8,8 +11,8 @@ enum LogLevel {
     DEBUG 
 };
 
-const sf::Font DEFAULT_FONT("myfont.ttf");
-
 const LogLevel LOG_LEVEL = DEBUG;
 
 void Debug(std::string message); 
+
+#endif
