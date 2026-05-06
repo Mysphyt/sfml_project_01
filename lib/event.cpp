@@ -1,6 +1,5 @@
 #include "event.h"
-
-Menu currentMenu;
+#include "menu.h"
 
 const void onClose (sf::RenderWindow& window, const sf::Event::Closed& closed)
 {
@@ -74,5 +73,5 @@ const void onMouseMoved (sf::RenderWindow &window, const sf::Event::MouseMoved& 
     Debug("new mouse x: "+std::to_string(mouseMoved.position.x));
     Debug("new mouse y: "+std::to_string(mouseMoved.position.y));   
 
-    CheckMouseCollisions(currentMenu, mouseMoved.position.x, mouseMoved.position.y);
+    CheckMouseCollisions(CURRENT_MENU, mouseMoved.position.x, mouseMoved.position.y);
 };

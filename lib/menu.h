@@ -20,6 +20,8 @@ struct Menu {
     std::list<Button> buttons;
 };
 
+extern Menu CURRENT_MENU;
+
 VOID RenderMenu(sf::RenderWindow&, Menu);
 
 VOID RenderButton(sf::RenderWindow&, Button);
