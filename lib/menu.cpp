@@ -2,13 +2,23 @@
 
 sf::Font DEFAULT_BUTTON_FONT;
 
-VOID RenderButton(sf::RenderWindow& window, Button button)
+sf::Color ParseColorString(const std::string& colorStr)
+{
+    std::vector<std::string> menuColorValues = SplitString(colorStr, ',');
+    int menuR = stoi(menuColorValues[0]);
+    int menuG = stoi(menuColorValues[1]);
+    int menuB = stoi(menuColorValues[2]);
+    sf::Color menuColor = sf::Color({menuR, menuG, menuB});   
+    return menuColor;
+};
+
+VOID RenderButton(sf::RenderWindow& window, const Button& button)
 {
     window.draw(button.background); 
     window.draw(button.text);
 };
 
-VOID RenderMenu(sf::RenderWindow& window, Menu menu) 
+VOID RenderMenu(sf::RenderWindow& window, const Menu& menu) 
 {
     // Draw the menu background
     window.draw(menu.background);
@@ -20,11 +30,11 @@ VOID RenderMenu(sf::RenderWindow& window, Menu menu)
     }
 };
 
-Button GenerateTestButton(
+Button CreateButton(
     float xpos, float ypos, 
     float width, float height, 
     int textSize,
-    std::string textString, 
+    const std::string& textString, 
     sf::Color textColor,
     sf::Color buttonColor)
 {
@@ -33,7 +43,7 @@ Button GenerateTestButton(
     // set the string to display
     buttonText.setString(textString);
     // set the character size
-    buttonText.setCharacterSize(textSize); // in pixels, not points!
+    buttonText.setCharacterSize(16); // in pixels, not points!
     // set the color
     buttonText.setFillColor(textColor);
     // set the position
@@ -45,10 +55,10 @@ Button GenerateTestButton(
     sf::FloatRect textBounds = buttonText.getLocalBounds();
 
     // Set origin to the center of the text
-    buttonText.setOrigin(
-        {textBounds.position.x + textBounds.size.x / 2.0f,
-        textBounds.position.y + textBounds.size.y / 2.0f}
-    );
+    // buttonText.setOrigin(
+    //     {textBounds.position.x + textBounds.size.x / 2.0f,
+    //     textBounds.position.y + textBounds.size.y / 2.0f}
+    // );
 
     sf::RectangleShape buttonRect = sf::RectangleShape({width,height});
     buttonRect.setPosition({xpos,ypos});
@@ -81,7 +91,7 @@ Menu GenerateTestMenu(float width, float height)
 
     menuBackground.setFillColor(sf::Color(50,50,50));
 
-    Button btn1 = GenerateTestButton(
+    Button btn1 = CreateButton(
         100,100, // position
         200,100, // size
         16,
@@ -90,7 +100,7 @@ Menu GenerateTestMenu(float width, float height)
         sf::Color::Red
     );
     
-    Button btn2 = GenerateTestButton(
+    Button btn2 = CreateButton(
         100,220, // position
         200,100, // size
         16,
@@ -99,7 +109,7 @@ Menu GenerateTestMenu(float width, float height)
         sf::Color::Blue
     );
 
-    Button btn3 = GenerateTestButton(
+    Button btn3 = CreateButton(
         100,340, // position 
         200,100, // size
         16,
@@ -109,16 +119,18 @@ Menu GenerateTestMenu(float width, float height)
     );
 
     Debug("Menu");
-    std::list<Button> menuBtns{btn1, btn2, btn3};
+    std::vector<Button> menuBtns{btn1, btn2, btn3};
 
-    Menu menu = {menuBackground,menuBtns};
+    Menu menu = {-1,menuBackground,menuBtns};
     
     Debug("Return");
     return menu;
-};
+}
 
 VOID CheckMouseCollisions(Menu& menu, float mouseX, float mouseY)
 {
+    int buttonIndex = 0;
+    menu.activeButtonIndex = -1;
     for(Button& btn : menu.buttons) 
     {
         sf::Vector2 btnPos = btn.background.getPosition();
@@ -130,10 +142,71 @@ VOID CheckMouseCollisions(Menu& menu, float mouseX, float mouseY)
         {
             btn.text.setFillColor(sf::Color::White); 
             btn.background.setOutlineColor(sf::Color::White);
+            menu.activeButtonIndex = buttonIndex;
+            break;
         }
         else {
             btn.text.setFillColor(sf::Color::Black); 
             btn.background.setOutlineColor(sf::Color::Black);
         }
-    } 
+
+        buttonIndex += 1;
+    }
 };
+
+
+Menu LoadMenu(const std::filesystem::path& filePath)
+{
+    std::unordered_map<std::string, std::vector<std::string>> csvData = LoadDataCSV(filePath);
+
+    std::vector<std::string> menuData = csvData["MENU"];
+    std::string menuStr = menuData[0];
+    std::vector<std::string> menuDataValues = SplitString(menuStr, DATA_DELIM);
+
+    std::string menuName = menuDataValues[0];
+    Debug("Parsing Menu: " + menuName);
+
+    std::string menuColorStr = menuDataValues[1];
+    sf::Color menuColor = ParseColorString(menuColorStr);
+
+    std::vector<std::string> buttonData = csvData["BUTTON"]; 
+    std::vector<Button> buttons;
+    for (std::string buttonStr : buttonData)
+    {
+        std::vector<std::string> dataValues = SplitString(buttonStr, DATA_DELIM);
+        std::string buttonName = dataValues[0];
+        Debug("Parsing Button: " + buttonName);
+        std::vector<std::string> button_pos = SplitString(dataValues[1], ',');
+        std::vector<std::string> button_size = SplitString(dataValues[2], ',');
+
+        int textSize = stoi(dataValues[3]);
+        bool centerText = stoi(dataValues[4]);
+        bool boldText = stoi(dataValues[5]);
+        bool underlineText = stoi(dataValues[6]);
+
+        std::string buttonColorStr = dataValues[7];
+        std::string textColorStr = dataValues[8];
+
+        sf::Color buttonColor = ParseColorString(buttonColorStr);
+        sf::Color textColor = ParseColorString(textColorStr);
+
+        Button button = CreateButton(
+            stoi(button_pos[0]),stoi(button_pos[1]), // position
+            stoi(button_size[0]),stoi(button_size[1]), // size
+            textSize,
+            buttonName,
+            textColor,
+            buttonColor
+        );
+
+        buttons.push_back(button);
+    }
+
+    sf::RectangleShape menuBackground({0,0});
+
+    menuBackground.setSize({WIN_WIDTH, WIN_HEIGHT});
+
+    menuBackground.setFillColor(menuColor);
+
+    return Menu({-1, menuBackground, buttons});
+}

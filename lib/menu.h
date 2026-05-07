@@ -5,10 +5,11 @@
 #include <string>
 #include <Windows.h>
 #include <SFML/Graphics.hpp>
-#include <list>
+#include <vector>
+#include <stack>
 
 #include "globals.h"
-#include "log.h"
+#include "data.h"
 
 struct Button {
     sf::Text text;
@@ -16,18 +17,32 @@ struct Button {
 };
 
 struct Menu {
+    int activeButtonIndex;
+
     sf::RectangleShape background;
-    std::list<Button> buttons;
+    std::vector<Button> buttons;
 };
 
-extern Menu CURRENT_MENU;
+extern std::stack<Menu> MENUS;
 
-VOID RenderMenu(sf::RenderWindow&, Menu);
+sf::Color ParseColorString(const std::string& colorStr);
 
-VOID RenderButton(sf::RenderWindow&, Button);
+VOID RenderMenu(sf::RenderWindow& window, const Menu& menu);
+
+VOID RenderButton(sf::RenderWindow& window, const Button& button);
 
 VOID CheckMouseCollisions(Menu& menu, float mouseX, float mouseY);
 
+Button CreateButton(
+    float xpos, float ypos, 
+    float width, float height, 
+    int textSize,
+    const std::string& textString, 
+    sf::Color textColor,
+    sf::Color buttonColor);
+
 Menu GenerateTestMenu(float width, float height);
+
+Menu LoadMenu(const std::filesystem::path& filePath);
 
 #endif

@@ -2,16 +2,19 @@
 #include "menu.h"
 
 // Globals
-Menu CURRENT_MENU;
+std::stack<Menu> MENUS;
 GameState CURR_GAME_STATE;
 // ...
 
 void InitGame() {
     // create the window
     sf::RenderWindow window(sf::VideoMode({WIN_WIDTH, WIN_HEIGHT}), "My window");
+    std::filesystem::path mainMenuFilePath = "data/menus/main.csv";
+    Menu mainMenu = LoadMenu(mainMenuFilePath);
 
     // Init event globals
-    CURRENT_MENU = GenerateTestMenu(WIN_WIDTH, WIN_HEIGHT);// Menu { 0, {}, testMenuBackground };
+    MENUS.push(mainMenu);// Menu { 0, {}, testMenuBackground };
+
     CURR_GAME_STATE = GameState::MENU;
 
     GameLoop(window);
@@ -62,7 +65,7 @@ void GameLoop(sf::RenderWindow& window)
 
         // draw everything here...
         // window.draw(...);
-        RenderMenu(window, CURRENT_MENU);
+        RenderMenu(window, MENUS.top());
         
         // end the current frame
         window.display();
