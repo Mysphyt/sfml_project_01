@@ -1,5 +1,6 @@
 #include "game.h"
 #include "menu.h"
+#include "font_manager.h"
 
 // Globals
 std::stack<Menu> MENUS;
@@ -8,9 +9,19 @@ GameState CURR_GAME_STATE;
 
 void InitGame() {
     // create the window
+
     sf::RenderWindow window(sf::VideoMode({WIN_WIDTH, WIN_HEIGHT}), "My window");
+
+    sf::Font* default_font = FontManager::loadFont("default", "myfont.ttf");
+
+    if(default_font == nullptr){
+        std::cout << "FONT LOAD FAILED!!!";
+    }
+ 
     std::filesystem::path mainMenuFilePath = "data/menus/main.csv";
     Menu mainMenu = LoadMenu(mainMenuFilePath);
+
+    // Menu mainMenu = GenerateTestMenu(WIN_WIDTH, WIN_HEIGHT);
 
     // Init event globals
     MENUS.push(mainMenu);// Menu { 0, {}, testMenuBackground };

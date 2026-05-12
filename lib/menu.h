@@ -8,9 +8,6 @@
 #include <vector>
 #include <stack>
 
-#include "globals.h"
-#include "data.h"
-
 struct Button {
     sf::Text text;
     sf::RectangleShape background;
@@ -19,7 +16,8 @@ struct Button {
 struct Menu {
     int activeButtonIndex;
 
-    sf::RectangleShape background;
+    sf::RectangleShape backgroundRect;
+    sf::Sprite backgroundSprite;
     std::vector<Button> buttons;
 };
 
@@ -39,7 +37,11 @@ Button CreateButton(
     int textSize,
     const std::string& textString, 
     sf::Color textColor,
-    sf::Color buttonColor);
+    sf::Color buttonColor,
+    bool centerText,
+    bool boldText,
+    bool underlineText
+);
 
 Menu GenerateTestMenu(float width, float height);
 

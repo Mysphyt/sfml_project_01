@@ -1,6 +1,8 @@
 #include "menu.h"
-
-sf::Font DEFAULT_BUTTON_FONT;
+#include "globals.h"
+#include "data.h"
+#include "texture_manager.h"
+#include "font_manager.h"
 
 sf::Color ParseColorString(const std::string& colorStr)
 {
@@ -21,7 +23,8 @@ VOID RenderButton(sf::RenderWindow& window, const Button& button)
 VOID RenderMenu(sf::RenderWindow& window, const Menu& menu) 
 {
     // Draw the menu background
-    window.draw(menu.background);
+    window.draw(menu.backgroundRect);
+    window.draw(menu.backgroundSprite);
 
     // Render each button
     for (Button menuButton : menu.buttons)
@@ -36,10 +39,13 @@ Button CreateButton(
     int textSize,
     const std::string& textString, 
     sf::Color textColor,
-    sf::Color buttonColor)
+    sf::Color buttonColor,
+    bool centerText,
+    bool boldText,
+    bool underlineText)
 {
     // Button1
-    sf::Text buttonText(DEFAULT_BUTTON_FONT); // a font is required to make a text object
+    sf::Text buttonText(*FontManager::getFont("default")); // a font is required to make a text object
     // set the string to display
     buttonText.setString(textString);
     // set the character size
@@ -48,17 +54,25 @@ Button CreateButton(
     buttonText.setFillColor(textColor);
     // set the position
     buttonText.setPosition({xpos+(width/2), ypos+(height/2)});
+
     // set the text style
-    buttonText.setStyle(sf::Text::Bold | sf::Text::Underlined);
+    if(boldText) {
+        buttonText.setStyle(sf::Text::Bold);
+    }
+    if(underlineText) {
+        buttonText.setStyle(sf::Text::Underlined);
+    }
 
     // Get the local bounds of the text
     sf::FloatRect textBounds = buttonText.getLocalBounds();
 
     // Set origin to the center of the text
-    // buttonText.setOrigin(
-    //     {textBounds.position.x + textBounds.size.x / 2.0f,
-    //     textBounds.position.y + textBounds.size.y / 2.0f}
-    // );
+    if(centerText) {
+        buttonText.setOrigin(
+            {textBounds.position.x + textBounds.size.x / 2.0f,
+            textBounds.position.y + textBounds.size.y / 2.0f}
+        );
+    }
 
     sf::RectangleShape buttonRect = sf::RectangleShape({width,height});
     buttonRect.setPosition({xpos,ypos});
@@ -79,17 +93,11 @@ Menu GenerateTestMenu(float width, float height)
 {
     Debug("Generating Test Menu...");
 
-    bool font_loaded = DEFAULT_BUTTON_FONT.openFromFile("myfont.ttf");
+    sf::RectangleShape backgroundRect({0,0});
 
-    if(!font_loaded){
-        std::cout << "FONT LOAD FAILED!!!";
-    }
+    backgroundRect.setSize({width, height});
 
-    sf::RectangleShape menuBackground({0,0});
-
-    menuBackground.setSize({width, height});
-
-    menuBackground.setFillColor(sf::Color(50,50,50));
+    backgroundRect.setFillColor(sf::Color(50,50,50));
 
     Button btn1 = CreateButton(
         100,100, // position
@@ -97,7 +105,8 @@ Menu GenerateTestMenu(float width, float height)
         16,
         "Button 1",
         sf::Color::Black,
-        sf::Color::Red
+        sf::Color::Red,
+        1,1,1
     );
     
     Button btn2 = CreateButton(
@@ -106,7 +115,8 @@ Menu GenerateTestMenu(float width, float height)
         16,
         "Button 2",
         sf::Color::Black,
-        sf::Color::Blue
+        sf::Color::Blue,
+        1,1,1
     );
 
     Button btn3 = CreateButton(
@@ -115,13 +125,20 @@ Menu GenerateTestMenu(float width, float height)
         16,
         "Button 3",
         sf::Color::Black,
-        sf::Color::Green
+        sf::Color::Green,
+        1,1,1
     );
 
     Debug("Menu");
     std::vector<Button> menuBtns{btn1, btn2, btn3};
 
-    Menu menu = {-1,menuBackground,menuBtns};
+    sf::Texture texture;
+    texture.loadFromFile("world.png");
+
+    sf::Sprite backgroundSprite(texture);
+
+
+    Menu menu = {-1,backgroundRect,backgroundSprite,menuBtns};
     
     Debug("Return");
     return menu;
@@ -196,17 +213,26 @@ Menu LoadMenu(const std::filesystem::path& filePath)
             textSize,
             buttonName,
             textColor,
-            buttonColor
+            buttonColor,
+            centerText,
+            boldText,
+            underlineText
         );
 
         buttons.push_back(button);
     }
 
-    sf::RectangleShape menuBackground({0,0});
+    sf::RectangleShape backgroundRect({0,0});
 
-    menuBackground.setSize({WIN_WIDTH, WIN_HEIGHT});
+    backgroundRect.setSize({WIN_WIDTH, WIN_HEIGHT});
 
-    menuBackground.setFillColor(menuColor);
+    backgroundRect.setFillColor(menuColor);
 
-    return Menu({-1, menuBackground, buttons});
+    // Declare and load a texture
+    sf::Texture* worldTexture = TextureManager::loadTexture("world", "world.png");
+    sf::Sprite backgroundSprite(*worldTexture);
+    backgroundSprite.setTextureRect(sf::IntRect({0,0},{WIN_WIDTH,WIN_HEIGHT}));
+    backgroundSprite.setPosition({0,0});
+
+    return Menu({-1, backgroundRect, backgroundSprite, buttons});
 }
