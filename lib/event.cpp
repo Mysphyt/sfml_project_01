@@ -70,6 +70,26 @@ const void onMouseButtonPressed (sf::RenderWindow &window, const sf::Event::Mous
     {
         std::string buttonString = MENUS.top().buttons[MENUS.top().activeButtonIndex].text.getString();
         std::cout << "Clicked Button: " << buttonString << std::endl;
+
+        // TODO: figure out callback system for specific buttons
+        if(buttonString == "Start Game") 
+        {
+            std::filesystem::path mainMenuFilePath = "data/menus/dvd.csv";
+            Menu dvdMenu = LoadMenu(mainMenuFilePath);
+
+            MENUS.push(dvdMenu);
+        }
+        else if(buttonString == "Quit") 
+        {
+            window.close();
+        }
+        else if(buttonString == "Back") 
+        {
+            if(MENUS.size() > 1)
+            {
+                MENUS.pop();
+            }
+        }
     }
 };
 

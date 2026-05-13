@@ -7,6 +7,7 @@
 #include <SFML/Graphics.hpp>
 #include <vector>
 #include <stack>
+#include <map>
 
 struct Button {
     sf::Text text;
@@ -16,8 +17,12 @@ struct Button {
 struct Menu {
     int activeButtonIndex;
 
+    std::string name;
+
     sf::RectangleShape backgroundRect;
+
     sf::Sprite backgroundSprite;
+
     std::vector<Button> buttons;
 };
 
@@ -25,7 +30,9 @@ extern std::stack<Menu> MENUS;
 
 sf::Color ParseColorString(const std::string& colorStr);
 
-VOID RenderMenu(sf::RenderWindow& window, const Menu& menu);
+VOID MoveMenuBackground(Menu& menu);
+ 
+VOID RenderMenu(sf::RenderWindow& window, Menu& menu);
 
 VOID RenderButton(sf::RenderWindow& window, const Button& button);
 

@@ -16,4 +16,8 @@ void InitGame();
 
 void GameLoop(sf::RenderWindow& window);
 
+void RenderGame(sf::RenderWindow& window);
+
+void UpdateGame();
+
 #endif

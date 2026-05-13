@@ -23,10 +23,6 @@ std::unordered_map<std::string, std::vector<std::string>> LoadDataCSV(const std:
     std::ifstream file(filePath);
 
     if (!file.is_open()) { 
-        std::cout << "!!!" << std::endl;
-        std::cerr << "Error: Could not open file " << filePath << "\n";
-        std::cerr << "Reason: " << std::strerror(errno) << "\n";
-        std::cout << std::filesystem::current_path() << std::endl;
         std::cerr << "Failed to open: " << std::filesystem::absolute(filePath) << std::endl;
         return result;
     }

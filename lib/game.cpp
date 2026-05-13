@@ -21,15 +21,22 @@ void InitGame() {
     std::filesystem::path mainMenuFilePath = "data/menus/main.csv";
     Menu mainMenu = LoadMenu(mainMenuFilePath);
 
-    // Menu mainMenu = GenerateTestMenu(WIN_WIDTH, WIN_HEIGHT);
-
-    // Init event globals
     MENUS.push(mainMenu);// Menu { 0, {}, testMenuBackground };
 
     CURR_GAME_STATE = GameState::MENU;
 
     GameLoop(window);
 };
+
+void RenderGame(sf::RenderWindow& window) 
+{
+    
+}
+
+void UpdateGame()
+{
+
+}
 
 void GameLoop(sf::RenderWindow& window) 
 {
@@ -76,7 +83,14 @@ void GameLoop(sf::RenderWindow& window)
 
         // draw everything here...
         // window.draw(...);
-        RenderMenu(window, MENUS.top());
+        if (CURR_GAME_STATE == GameState::MENU) 
+        {
+            RenderMenu(window, MENUS.top());
+        }
+        else if (CURR_GAME_STATE == GameState::GAME)
+        {
+            RenderGame(window); 
+        }
         
         // end the current frame
         window.display();
