@@ -10,7 +10,7 @@ sf::Texture* TextureManager::loadTexture(const std::string& name, const std::str
 
     // Load the texture
     sf::Texture* texture = new sf::Texture();
-        if (texture->loadFromFile(path)) {
+        if (texture->loadFromFile("data/textures/" + path)) {
         textures[name] = texture;
         return texture;
     }

@@ -9,9 +9,9 @@ std::map<std::string, sf::Vector2<int>> menuMoveVectors;
 sf::Color ParseColorString(const std::string& colorStr)
 {
     std::vector<std::string> menuColorValues = SplitString(colorStr, ',');
-    int menuR = stoi(menuColorValues[0]);
-    int menuG = stoi(menuColorValues[1]);
-    int menuB = stoi(menuColorValues[2]);
+    uint8_t menuR = stoi(menuColorValues[0]);
+    uint8_t menuG = stoi(menuColorValues[1]);
+    uint8_t menuB = stoi(menuColorValues[2]);
     sf::Color menuColor = sf::Color({menuR, menuG, menuB});   
     return menuColor;
 };
@@ -22,26 +22,23 @@ VOID RenderButton(sf::RenderWindow& window, const Button& button)
     window.draw(button.text);
 };
 
-VOID MoveMenuBackground(Menu& menu)
+VOID BounceBackgroundTextureRect(Menu& menu, const std::string& backgroundName)
 {
     std::map<std::string, sf::Sprite*> menuSpriteMap = SpriteManager::getObjSpriteMap(menu.data.getId());
-    if(menuSpriteMap.find("background") == menuSpriteMap.end())
+    if(menuSpriteMap.find(backgroundName) == menuSpriteMap.end())
     {
         return;
     }
-    sf::Sprite* backgroundSprite = menuSpriteMap["background"];
+    sf::Sprite* backgroundSprite = menuSpriteMap[backgroundName];
 
     sf::Vector2u bounds = backgroundSprite->getTexture().getSize();
     sf::IntRect textureRect = backgroundSprite->getTextureRect();
     
-    // std::cout << "Rect Pos/Size: " << textureRect.position.x << ", " << textureRect.position.y << " | " << textureRect.size.x << ", " << textureRect.size.y << std::endl; 
-    // std::cout << "Bounds Size: " << bounds.x << ", " << bounds.y << std::endl; 
-
     if (textureRect.position.x < 0 || (textureRect.position.x + textureRect.size.x) >= bounds.x) { 
-        menuMoveVectors[menu.name].x *= -1; 
+        menuMoveVectors[menu.name].x *= -1;
     }
     else if(textureRect.position.y < 0 || (textureRect.position.y + textureRect.size.y) >= bounds.y) { 
-        menuMoveVectors[menu.name].y *= -1; 
+        menuMoveVectors[menu.name].y *= -1;
     }
  
     backgroundSprite->setTextureRect(sf::IntRect(
@@ -57,7 +54,7 @@ VOID RenderMenu(sf::RenderWindow& window, Menu& menu)
 
     if(menuMoveVectors.find(menu.name) != menuMoveVectors.end()) 
     {
-        MoveMenuBackground(menu);
+        BounceBackgroundTextureRect(menu, "world");
     }
 
     // 
@@ -173,7 +170,7 @@ Menu GenerateTestMenu(float width, float height)
     std::vector<Button> menuBtns{btn1, btn2, btn3};
 
     sf::Texture texture;
-    texture.loadFromFile("world.png");
+    bool loaded = texture.loadFromFile("world.png");
 
     sf::Sprite backgroundSprite(texture);
 
@@ -280,14 +277,13 @@ Menu LoadMenu(const std::filesystem::path& filePath)
 
     backgroundRect.setFillColor(menuColor);
 
-    // Declare and load a texture
-    sf::Texture* worldTexture = TextureManager::loadTexture(backgroundTextureName, backgroundTexturePath);
-    sf::Sprite* backgroundSprite = new sf::Sprite(*worldTexture);
+    Menu mainMenu = Menu({ObjData(), -1, menuName, backgroundRect, buttons});
+
+    sf::Texture* backgroundTexture = TextureManager::loadTexture(backgroundTextureName, backgroundTexturePath);
+    sf::Sprite* backgroundSprite = new sf::Sprite(*backgroundTexture);
 
     backgroundSprite->setTextureRect(sf::IntRect({0,0},{WIN_WIDTH,WIN_HEIGHT}));
     backgroundSprite->setPosition({0,0});
-
-    Menu mainMenu = Menu({ObjData(), -1, menuName, backgroundRect, buttons});
 
     SpriteManager::addSprite("background", backgroundSprite, mainMenu.data.getId());
 

@@ -10,8 +10,8 @@ enum class ProgramState {
 };
 extern ProgramState CURR_PROGRAM_STATE;
 
-inline constexpr unsigned int WIN_WIDTH = 800;
-inline constexpr unsigned int WIN_HEIGHT = 600;
+inline constexpr unsigned int WIN_WIDTH = 1280;
+inline constexpr unsigned int WIN_HEIGHT = 720;
 inline constexpr unsigned int TARGET_FRAME_RATE = 60;
 
 inline constexpr char DATA_DELIM = '|';

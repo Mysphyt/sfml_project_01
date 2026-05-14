@@ -31,7 +31,7 @@ extern std::stack<Menu> MENUS;
 
 sf::Color ParseColorString(const std::string& colorStr);
 
-VOID MoveMenuBackground(Menu& menu);
+VOID BounceBackgroundTextureRect(Menu& menu, const std::string& backgroundName);
  
 VOID RenderMenu(sf::RenderWindow& window, Menu& menu);
 

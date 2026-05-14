@@ -1,3 +1,3 @@
-MENU:main_menu|50,50,50|1,1|world,world.png
+MENU:main_menu|50,50,50|1,1|night_sky,night_sky.jpg
 BUTTON:Start Program|100,100|200,100|16|1|0|0|0,250,0|0,0,0
 BUTTON:Quit|100,250|200,100|16|1|0|0|250,0,0|0,0,0

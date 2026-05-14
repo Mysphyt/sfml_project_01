@@ -1,6 +1,8 @@
 #include "program.h"
 #include "menu.h"
 #include "font_manager.h"
+#include "texture_manager.h"
+#include "sprite_manager.h"
 
 // Globals
 std::stack<Menu> MENUS;
@@ -21,7 +23,15 @@ void InitProgram() {
     std::filesystem::path mainMenuFilePath = "data/menus/main.csv";
     Menu mainMenu = LoadMenu(mainMenuFilePath);
 
-    MENUS.push(mainMenu);// Menu { 0, {}, testMenuBackground };
+    sf::Texture* worldTexture = TextureManager::loadTexture("world", "world.png");
+    sf::Sprite* worldSprite = new sf::Sprite(*worldTexture);
+
+    worldSprite->setTextureRect(sf::IntRect({0,0},{WIN_WIDTH,WIN_HEIGHT}));
+    worldSprite->setPosition({0,0});
+
+    SpriteManager::addSprite("world", worldSprite, mainMenu.data.getId());
+
+    MENUS.push(mainMenu);
 
     CURR_PROGRAM_STATE = ProgramState::MENU;
 

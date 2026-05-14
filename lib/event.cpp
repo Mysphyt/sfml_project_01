@@ -74,7 +74,7 @@ const void onMouseButtonPressed (sf::RenderWindow &window, const sf::Event::Mous
         // TODO: figure out callback system for specific buttons
         if(buttonString == "Start Program") 
         {
-            std::filesystem::path mainMenuFilePath = "data/menus/dvd.csv";
+            std::filesystem::path mainMenuFilePath = "data/menus/dvd_logo.csv";
             Menu dvdMenu = LoadMenu(mainMenuFilePath);
 
             MENUS.push(dvdMenu);

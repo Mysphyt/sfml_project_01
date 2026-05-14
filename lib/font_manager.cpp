@@ -10,7 +10,7 @@ sf::Font* FontManager::loadFont(const std::string& name, const std::string& path
 
     // Load the texture
     sf::Font* font = new sf::Font();
-        if (font->openFromFile(path)) {
+        if (font->openFromFile("data/fonts/" + path)) {
         fonts[name] = font;
         return font;
     }
