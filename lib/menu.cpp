@@ -1,8 +1,8 @@
 #include "menu.h"
 #include "globals.h"
-#include "data.h"
 #include "font_manager.h"
 #include "texture_manager.h"
+#include "sprite_manager.h"
 
 std::map<std::string, sf::Vector2<int>> menuMoveVectors;
 
@@ -24,8 +24,15 @@ VOID RenderButton(sf::RenderWindow& window, const Button& button)
 
 VOID MoveMenuBackground(Menu& menu)
 {
-    sf::Vector2u bounds = menu.backgroundSprite.getTexture().getSize();
-    sf::IntRect textureRect = menu.backgroundSprite.getTextureRect();
+    std::map<std::string, sf::Sprite*> menuSpriteMap = SpriteManager::getObjSpriteMap(menu.data.getId());
+    if(menuSpriteMap.find("background") == menuSpriteMap.end())
+    {
+        return;
+    }
+    sf::Sprite* backgroundSprite = menuSpriteMap["background"];
+
+    sf::Vector2u bounds = backgroundSprite->getTexture().getSize();
+    sf::IntRect textureRect = backgroundSprite->getTextureRect();
     
     // std::cout << "Rect Pos/Size: " << textureRect.position.x << ", " << textureRect.position.y << " | " << textureRect.size.x << ", " << textureRect.size.y << std::endl; 
     // std::cout << "Bounds Size: " << bounds.x << ", " << bounds.y << std::endl; 
@@ -37,7 +44,7 @@ VOID MoveMenuBackground(Menu& menu)
         menuMoveVectors[menu.name].y *= -1; 
     }
  
-    menu.backgroundSprite.setTextureRect(sf::IntRect(
+    backgroundSprite->setTextureRect(sf::IntRect(
         {textureRect.position.x + menuMoveVectors[menu.name].x, textureRect.position.y + menuMoveVectors[menu.name].y},
         {WIN_WIDTH, WIN_HEIGHT}
     ));
@@ -54,7 +61,10 @@ VOID RenderMenu(sf::RenderWindow& window, Menu& menu)
     }
 
     // 
-    window.draw(menu.backgroundSprite);
+    for(auto& sprite : SpriteManager::getObjSpriteMap(menu.data.getId()))
+    {
+        window.draw(*sprite.second);
+    }
 
     // Render each button
     for (Button menuButton : menu.buttons)
@@ -167,7 +177,7 @@ Menu GenerateTestMenu(float width, float height)
 
     sf::Sprite backgroundSprite(texture);
 
-    Menu menu = {-1,"test",backgroundRect,backgroundSprite,menuBtns};
+    Menu menu = {ObjData(), -1,"test",backgroundRect,menuBtns};
     
     Debug("Return");
     return menu;
@@ -272,10 +282,14 @@ Menu LoadMenu(const std::filesystem::path& filePath)
 
     // Declare and load a texture
     sf::Texture* worldTexture = TextureManager::loadTexture(backgroundTextureName, backgroundTexturePath);
-    sf::Sprite backgroundSprite(*worldTexture);
+    sf::Sprite* backgroundSprite = new sf::Sprite(*worldTexture);
 
-    backgroundSprite.setTextureRect(sf::IntRect({0,0},{WIN_WIDTH,WIN_HEIGHT}));
-    backgroundSprite.setPosition({0,0});
+    backgroundSprite->setTextureRect(sf::IntRect({0,0},{WIN_WIDTH,WIN_HEIGHT}));
+    backgroundSprite->setPosition({0,0});
 
-    return Menu({-1, menuName, backgroundRect, backgroundSprite, buttons});
+    Menu mainMenu = Menu({ObjData(), -1, menuName, backgroundRect, buttons});
+
+    SpriteManager::addSprite("background", backgroundSprite, mainMenu.data.getId());
+
+    return mainMenu;
 }

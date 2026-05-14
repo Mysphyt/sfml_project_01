@@ -1,4 +1,4 @@
-#include "game.h"
+#include "program.h"
 #include <filesystem>
 #include <fstream>
 #include <cerrno>   // For errno
@@ -6,5 +6,5 @@
 
 int main()
 {
-    InitGame();
+    InitProgram();
 }

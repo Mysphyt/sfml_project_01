@@ -9,16 +9,10 @@ public:
 
     // Retrieve a texture by its name
     static sf::Texture* getTexture(const std::string& name);
-    sf::Vector2<int> movementVector;
 
     // Clean up all loaded textures
     static void cleanup();
 
 private:
     static std::map<std::string, sf::Texture*> textures; // Map to store textures
-};
-
-struct MovingSprite {
-    sf::Vector2<int> velocity;
-    sf::Sprite sprite;
 };

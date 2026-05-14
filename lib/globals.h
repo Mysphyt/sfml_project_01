@@ -4,11 +4,11 @@
 #include <map>
 #include <SFML/Graphics.hpp>
 
-enum class GameState {
+enum class ProgramState {
     MENU,
-    GAME
+    PROGRAM
 };
-extern GameState CURR_GAME_STATE;
+extern ProgramState CURR_PROGRAM_STATE;
 
 inline constexpr unsigned int WIN_WIDTH = 800;
 inline constexpr unsigned int WIN_HEIGHT = 600;

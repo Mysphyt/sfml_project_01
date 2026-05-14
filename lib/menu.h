@@ -1,6 +1,5 @@
 #ifndef MENU_H
 #define MENU_H
-
 #include <iostream>
 #include <string>
 #include <Windows.h>
@@ -9,19 +8,21 @@
 #include <stack>
 #include <map>
 
+#include "data.h"
+
 struct Button {
     sf::Text text;
     sf::RectangleShape background;
 };
 
 struct Menu {
+    ObjData data;
+
     int activeButtonIndex;
 
     std::string name;
 
     sf::RectangleShape backgroundRect;
-
-    sf::Sprite backgroundSprite;
 
     std::vector<Button> buttons;
 };

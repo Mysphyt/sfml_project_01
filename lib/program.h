@@ -1,5 +1,5 @@
-#ifndef GAME_H
-#define GAME_H
+#ifndef PROGRAM_H
+#define PROGRAM_H
 
 #include <ctime>
 #include <iostream>
@@ -12,12 +12,12 @@
 
 #include "event.h"
 
-void InitGame();
+void InitProgram();
 
-void GameLoop(sf::RenderWindow& window);
+void ProgramLoop(sf::RenderWindow& window);
 
-void RenderGame(sf::RenderWindow& window);
+void RenderProgram(sf::RenderWindow& window);
 
-void UpdateGame();
+void UpdateProgram();
 
 #endif

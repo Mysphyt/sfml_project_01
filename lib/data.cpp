@@ -1,4 +1,8 @@
 #include "data.h"
+#include <cerrno>   // For errno
+#include <cstring>  // For strerror
+
+int ObjData::counter = 0;
 
 std::vector<std::string> SplitString(const std::string &input, char delimiter)
 {
@@ -13,9 +17,6 @@ std::vector<std::string> SplitString(const std::string &input, char delimiter)
     }
     return tokens;
 }
-
-#include <cerrno>   // For errno
-#include <cstring>  // For strerror
 
 std::unordered_map<std::string, std::vector<std::string>> LoadDataCSV(const std::filesystem::path& filePath)
 {
