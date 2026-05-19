@@ -1,6 +1,8 @@
 #include "event.h"
 #include "log.h"
 #include "menu.h"
+#include "module.h"
+#include "dvd_logo.h"
 
 const void onClose (sf::RenderWindow& window, const sf::Event::Closed& closed)
 {
@@ -72,12 +74,10 @@ const void onMouseButtonPressed (sf::RenderWindow &window, const sf::Event::Mous
         std::cout << "Clicked Button: " << buttonString << std::endl;
 
         // TODO: figure out callback system for specific buttons
-        if(buttonString == "Start Program") 
+        if(buttonString == "DVD Logo") 
         {
-            std::filesystem::path mainMenuFilePath = "data/menus/dvd_logo.csv";
-            Menu dvdMenu = LoadMenu(mainMenuFilePath);
-
-            MENUS.push(dvdMenu);
+            CURR_MODULE = new DvDLogo("dvd_logo");
+            CURR_PROGRAM_STATE = ProgramState::MODULE;
         }
         else if(buttonString == "Quit") 
         {

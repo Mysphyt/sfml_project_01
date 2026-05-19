@@ -6,7 +6,7 @@
 
 enum class ProgramState {
     MENU,
-    PROGRAM
+    MODULE
 };
 extern ProgramState CURR_PROGRAM_STATE;
 

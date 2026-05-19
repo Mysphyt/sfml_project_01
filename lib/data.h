@@ -1,3 +1,6 @@
+#ifndef DATA_H
+#define DATA_H
+
 #include <unordered_map>
 #include <fstream>
 #include <sstream>
@@ -33,3 +36,5 @@ public:
         return counter;
     }
 };
+
+#endif

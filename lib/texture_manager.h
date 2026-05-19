@@ -1,3 +1,6 @@
+#ifndef TEXTURE_MANAGER_H
+#define TEXTURE_MANAGER_H
+
 #include <SFML/Graphics.hpp>
 #include <map>
 #include <string>
@@ -16,3 +19,5 @@ public:
 private:
     static std::map<std::string, sf::Texture*> textures; // Map to store textures
 };
+
+#endif

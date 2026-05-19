@@ -1,3 +1,6 @@
+#ifndef SPRITE_MANAGER_H
+#define SPRITE_MANAGER_H
+
 #include <SFML/Graphics.hpp>
 #include <map>
 #include <string>
@@ -9,8 +12,9 @@ public:
 
     static void addSprite(std::string spriteName, sf::Sprite* sprite, const unsigned int& id);
 
-    // Retrieve a texture by its name
+    // Retrieve a texture by its Object ID
     static std::map<std::string, sf::Sprite*> getObjSpriteMap(const unsigned int& id);
+
 
     // Clean up all loaded textures
     static void cleanup();
@@ -20,3 +24,5 @@ private:
     // => { object_id : { sprite_name : sprite }, ... }
     static std::map<unsigned int, std::map<std::string, sf::Sprite*>> spritesByID; // Map to store textures
 };
+
+#endif

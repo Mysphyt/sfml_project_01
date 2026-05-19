@@ -3,9 +3,11 @@
 #include "font_manager.h"
 #include "texture_manager.h"
 #include "sprite_manager.h"
+#include "module.h"
 
 // Globals
 std::stack<Menu> MENUS;
+Module* CURR_MODULE;
 ProgramState CURR_PROGRAM_STATE;
 // ...
 
@@ -49,9 +51,10 @@ void RenderProgram(sf::RenderWindow& window)
     {
         RenderMenu(window, MENUS.top());
     }
-    else if (CURR_PROGRAM_STATE == ProgramState::PROGRAM)
+    else if (CURR_PROGRAM_STATE == ProgramState::MODULE)
     {
-        RenderProgram(window); 
+        CURR_MODULE->update(window);
+        CURR_MODULE->render(window);
     }
     
     // end the current frame

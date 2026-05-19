@@ -22,6 +22,11 @@ VOID RenderButton(sf::RenderWindow& window, const Button& button)
     window.draw(button.text);
 };
 
+VOID RotateBackgroundTextureRect(Menu& menu, const std::string& backgroundName)
+{
+
+}
+
 VOID BounceBackgroundTextureRect(Menu& menu, const std::string& backgroundName)
 {
     std::map<std::string, sf::Sprite*> menuSpriteMap = SpriteManager::getObjSpriteMap(menu.data.getId());
@@ -57,7 +62,6 @@ VOID RenderMenu(sf::RenderWindow& window, Menu& menu)
         BounceBackgroundTextureRect(menu, "world");
     }
 
-    // 
     for(auto& sprite : SpriteManager::getObjSpriteMap(menu.data.getId()))
     {
         window.draw(*sprite.second);
@@ -282,8 +286,15 @@ Menu LoadMenu(const std::filesystem::path& filePath)
     sf::Texture* backgroundTexture = TextureManager::loadTexture(backgroundTextureName, backgroundTexturePath);
     sf::Sprite* backgroundSprite = new sf::Sprite(*backgroundTexture);
 
-    backgroundSprite->setTextureRect(sf::IntRect({0,0},{WIN_WIDTH,WIN_HEIGHT}));
     backgroundSprite->setPosition({0,0});
+    
+    sf::Vector2u backgroundTextureSize = backgroundTexture->getSize();
+
+    // Scale the background texture to the current resolution
+    float scaleX = static_cast<float>(WIN_WIDTH) / backgroundTextureSize.x;
+    float scaleY = static_cast<float>(WIN_HEIGHT) / backgroundTextureSize.y;
+
+    backgroundSprite->setScale({scaleX, scaleY});    
 
     SpriteManager::addSprite("background", backgroundSprite, mainMenu.data.getId());
 
