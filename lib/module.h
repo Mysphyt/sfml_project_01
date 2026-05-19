@@ -13,7 +13,7 @@ public:
 
     virtual int getId();
 
-    virtual void update(sf::RenderWindow& window);
+    virtual void update(sf::RenderWindow& window, float deltaTime);
 
     virtual void render(sf::RenderWindow& window);
 };

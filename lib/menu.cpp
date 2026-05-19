@@ -52,15 +52,22 @@ VOID BounceBackgroundTextureRect(Menu& menu, const std::string& backgroundName)
     ));
 }
 
+VOID UpdateMenu(sf::RenderWindow& window, Menu& menu, float deltaTime) 
+{
+    // TEST: Rotate the world sprite one degree/sec
+    sf::Sprite* rotateSprite = SpriteManager::getObjSpriteMap(menu.data.getId())["world"];
+    rotateSprite->rotate(sf::degrees(4.f * deltaTime));
+}
+
 VOID RenderMenu(sf::RenderWindow& window, Menu& menu) 
 {
     // Draw the menu background
     window.draw(menu.backgroundRect);
 
-    if(menuMoveVectors.find(menu.name) != menuMoveVectors.end()) 
-    {
-        BounceBackgroundTextureRect(menu, "world");
-    }
+    // if(menuMoveVectors.find(menu.name) != menuMoveVectors.end()) 
+    // {
+    //     BounceBackgroundTextureRect(menu, "world");
+    // }
 
     for(auto& sprite : SpriteManager::getObjSpriteMap(menu.data.getId()))
     {

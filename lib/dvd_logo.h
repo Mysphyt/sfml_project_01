@@ -7,7 +7,7 @@ class DvDLogo : public Module {
 public:    
     DvDLogo(const std::string& moduleName);
 
-    void update(sf::RenderWindow& window) override;
+    void update(sf::RenderWindow& window, float deltaTime) override;
 
     void render(sf::RenderWindow& window) override;
 protected:

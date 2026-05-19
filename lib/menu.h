@@ -33,6 +33,8 @@ sf::Color ParseColorString(const std::string& colorStr);
 
 VOID BounceBackgroundTextureRect(Menu& menu, const std::string& backgroundName);
  
+VOID UpdateMenu(sf::RenderWindow& window, Menu& menu, float deltaTime);
+
 VOID RenderMenu(sf::RenderWindow& window, Menu& menu);
 
 VOID RenderButton(sf::RenderWindow& window, const Button& button);

@@ -18,6 +18,6 @@ void ProgramLoop(sf::RenderWindow& window);
 
 void RenderProgram(sf::RenderWindow& window);
 
-void UpdateProgram();
+void UpdateProgram(sf::RenderWindow& window, float deltaTime);
 
 #endif

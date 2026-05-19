@@ -28,8 +28,9 @@ void InitProgram() {
     sf::Texture* worldTexture = TextureManager::loadTexture("world", "world.png");
     sf::Sprite* worldSprite = new sf::Sprite(*worldTexture);
 
-    worldSprite->setTextureRect(sf::IntRect({0,0},{WIN_WIDTH,WIN_HEIGHT}));
-    worldSprite->setPosition({0,0});
+    worldSprite->setPosition({WIN_WIDTH/2, WIN_HEIGHT/2});
+    sf::FloatRect bounds = worldSprite->getLocalBounds();
+    worldSprite->setOrigin({bounds.size.x / 2.f, bounds.size.y / 2.f});
 
     SpriteManager::addSprite("world", worldSprite, mainMenu.data.getId());
 
@@ -45,27 +46,33 @@ void RenderProgram(sf::RenderWindow& window)
     // clear the window with black color
     window.clear(sf::Color::Black);
 
-    // draw everything here...
-    // window.draw(...);
+    // == Program Loop ==>
     if (CURR_PROGRAM_STATE == ProgramState::MENU) 
     {
         RenderMenu(window, MENUS.top());
     }
     else if (CURR_PROGRAM_STATE == ProgramState::MODULE)
     {
-        CURR_MODULE->update(window);
         CURR_MODULE->render(window);
     }
-    
+
     // end the current frame
     window.display();
 }
 
-void UpdateProgram(sf::RenderWindow& window)
+void UpdateProgram(sf::RenderWindow& window, float deltaTime)
 {
        
     // == Program Loop ==>
-
+    if (CURR_PROGRAM_STATE == ProgramState::MENU) 
+    {
+        UpdateMenu(window, MENUS.top(), deltaTime);
+    }
+    else if (CURR_PROGRAM_STATE == ProgramState::MODULE)
+    {
+        CURR_MODULE->update(window, deltaTime);
+    }
+ 
     // Pass event callbacks
     window.handleEvents(
         [&](const sf::Event::Closed& closed) { 
@@ -95,27 +102,30 @@ void UpdateProgram(sf::RenderWindow& window)
 void ProgramLoop(sf::RenderWindow& window) 
 {
     // Target frame rate
-    auto time_between_frames = std::chrono::microseconds(std::chrono::seconds(1)) / TARGET_FRAME_RATE;
-    auto target_frame_time = std::chrono::steady_clock::now();
+    auto timeBetweenFrames = std::chrono::microseconds(std::chrono::seconds(1)) / TARGET_FRAME_RATE;
+    auto targetFrameTime = std::chrono::steady_clock::now();
+
+    float currentTime, deltaTime, frameDiff, dtime, cdtime;
 
     // run the program as long as the window is open
     while (window.isOpen())
     {
-        // 
-        DWORD current_time, delta_time;
-        current_time = clock();
+        currentTime = clock();
 
-        UpdateProgram(window);
+        UpdateProgram(window, deltaTime/1000.f);
 
         RenderProgram(window);
  
         // <== Program Loop ==
 
-        // Target frame time calculation
-        delta_time = current_time - clock() / (double) CLOCKS_PER_SEC;
-
         // Use sleep_until to reach target frame time (does nothing if frame time is already reached)
-        target_frame_time += time_between_frames;     // calculate target point in time
-        std::this_thread::sleep_until(target_frame_time);  // sleep until that time point
+        targetFrameTime += timeBetweenFrames;     // calculate target point in time
+        std::this_thread::sleep_until(targetFrameTime);  // sleep until that time point
+
+        // Target frame time calculation
+        deltaTime = clock() - currentTime;
+
+        std::cout<<"CTIME: " <<currentTime<<std::endl<<"DTIME: "<<deltaTime<<std::endl;
+        // std::cout<<"dtime: " <<dtime<<std::endl<<"cdtime: "<<cdtime<<std::endl;
     }
 };

@@ -31,7 +31,7 @@ DvDLogo::DvDLogo(const std::string& moduleName) : Module(moduleName)
     SpriteManager::addSprite(STR_DVD_LOGO, dvdSprite, getId());
 }
 
-void DvDLogo::update(sf::RenderWindow& window) 
+void DvDLogo::update(sf::RenderWindow& window, float DeltaTime) 
 {
     sf::Sprite* dvdLogoSprite = SpriteManager::getObjSpriteMap(getId())[STR_DVD_LOGO];
     sf::FloatRect spriteBounds = dvdLogoSprite->getGlobalBounds();
