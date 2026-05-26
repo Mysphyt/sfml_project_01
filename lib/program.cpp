@@ -23,7 +23,9 @@ void InitProgram() {
     }
  
     std::filesystem::path mainMenuFilePath = "data/menus/main.csv";
-    Menu mainMenu = LoadMenu(mainMenuFilePath);
+    Menu mainMenu = LoadMenuFromFile(mainMenuFilePath);
+
+    std::cout << "Loaded MainMenu... " << mainMenu.buttons.size() << std::endl;
 
     sf::Texture* worldTexture = TextureManager::loadTexture("world", "world.png");
     sf::Sprite* worldSprite = new sf::Sprite(*worldTexture);
@@ -33,7 +35,7 @@ void InitProgram() {
     sf::FloatRect bounds = worldSprite->getLocalBounds();
     worldSprite->setOrigin({bounds.size.x / 2.f, bounds.size.y / 2.f});
 
-    SpriteManager::addSprite("world", worldSprite, mainMenu.data.getId());
+    SpriteManager::addSprite("world", worldSprite, mainMenu.getId());
 
     MENUS.push(mainMenu);
 
@@ -53,16 +55,12 @@ void RenderProgram(sf::RenderWindow& window)
     // == Program Loop ==>
     if (CURR_PROGRAM_STATE == ProgramState::MENU) 
     {
-        RenderMenu(window, MENUS.top());
+        MENUS.top().Render(window);
     }
     else if (CURR_PROGRAM_STATE == ProgramState::MODULE)
     {
         CURR_MODULE->render(window);
     }
-
-    sf::Texture* backgroundTexture = TextureManager::loadTexture("test_texture", "dvd.png");
-    sf::Sprite testSprite(*backgroundTexture);
-    window.draw(testSprite);
 
     // end the current frame
     window.display();
@@ -74,7 +72,7 @@ void UpdateProgram(sf::RenderWindow& window, float deltaTime)
     // == Program Loop ==>
     if (CURR_PROGRAM_STATE == ProgramState::MENU) 
     {
-        UpdateMenu(window, MENUS.top(), deltaTime);
+        MENUS.top().Update(window, deltaTime);
     }
     else if (CURR_PROGRAM_STATE == ProgramState::MODULE)
     {

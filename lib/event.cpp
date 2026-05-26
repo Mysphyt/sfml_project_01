@@ -104,5 +104,5 @@ const void onMouseMoved (sf::RenderWindow &window, const sf::Event::MouseMoved& 
     // Debug("new mouse y: "+std::to_string(mouseMoved.position.y));   
     sf::Vector2f mouseViewPos = window.mapPixelToCoords(mouseMoved.position);
 
-    CheckMouseCollisions(MENUS.top(), mouseViewPos.x, mouseViewPos.y);
+    MENUS.top().CheckMouseCollisions(mouseViewPos.x, mouseViewPos.y);
 };

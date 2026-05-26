@@ -1,9 +1,5 @@
 #include "module.h"
 
-int Module::getId() {
-    return objData.getId();
-}
-
 void Module::update(sf::RenderWindow& window, float deltaTime) {
     // default implementation (can be empty)
 }

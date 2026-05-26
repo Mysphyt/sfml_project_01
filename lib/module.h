@@ -3,15 +3,14 @@
 
 #include "data.h"
 
-class Module {
+class Module : public ObjData {
 protected:
-    ObjData objData;
 public:
-    Module(const std::string& moduleName) {
-        objData = ObjData();
-    };
+    std::string name;
 
-    virtual int getId();
+    Module(const std::string& moduleName) : ObjData() {
+        name = moduleName;
+    };
 
     virtual void update(sf::RenderWindow& window, float deltaTime);
 

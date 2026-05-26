@@ -10,51 +10,65 @@
 
 #include "data.h"
 
-struct Button {
+class Button : public ObjData {
+public:
+    Button(
+        float xpos, float ypos, 
+        float width, float height, 
+        int textSize,
+        const std::string& textString, 
+        sf::Color textColor,
+        sf::Color buttonColor,
+        bool centerText,
+        bool boldText,
+        bool underlineText
+    );
+
     sf::Text text;
     sf::RectangleShape background;
+
+    VOID Update(sf::RenderWindow& window, float deltaTime);
+
+    VOID Render(sf::RenderWindow& window);
 };
 
-struct Menu {
-    ObjData data;
-
-    int activeButtonIndex;
-
+class Menu : public ObjData {
+public:
     std::string name;
 
     sf::RectangleShape backgroundRect;
 
     std::vector<Button> buttons;
+
+    int activeButtonIndex;
+
+    Menu(
+        int _activeButtonIndex,
+        std::string _name,
+        sf::RectangleShape _backgroundRect,
+        std::vector<Button> _buttons) {
+            activeButtonIndex = _activeButtonIndex;
+            name = _name;
+            buttons = _buttons;
+            backgroundRect = _backgroundRect;
+    };
+
+    VOID BounceBackgroundTextureRect(const std::string& backgroundName);
+     
+    VOID Update(sf::RenderWindow& window, float deltaTime);
+
+    VOID Render(sf::RenderWindow& window);
+
+    VOID CheckMouseCollisions(float mouseX, float mouseY);
+
 };
+
+Menu GenerateTestMenu(float width, float height);
+
+Menu LoadMenuFromFile(const std::filesystem::path& filePath);
 
 extern std::stack<Menu> MENUS;
 
 sf::Color ParseColorString(const std::string& colorStr);
-
-VOID BounceBackgroundTextureRect(Menu& menu, const std::string& backgroundName);
- 
-VOID UpdateMenu(sf::RenderWindow& window, Menu& menu, float deltaTime);
-
-VOID RenderMenu(sf::RenderWindow& window, Menu& menu);
-
-VOID RenderButton(sf::RenderWindow& window, const Button& button);
-
-VOID CheckMouseCollisions(Menu& menu, float mouseX, float mouseY);
-
-Button CreateButton(
-    float xpos, float ypos, 
-    float width, float height, 
-    int textSize,
-    const std::string& textString, 
-    sf::Color textColor,
-    sf::Color buttonColor,
-    bool centerText,
-    bool boldText,
-    bool underlineText
-);
-
-Menu GenerateTestMenu(float width, float height);
-
-Menu LoadMenu(const std::filesystem::path& filePath);
 
 #endif

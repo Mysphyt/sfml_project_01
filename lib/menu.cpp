@@ -16,20 +16,19 @@ sf::Color ParseColorString(const std::string& colorStr)
     return menuColor;
 };
 
-VOID RenderButton(sf::RenderWindow& window, const Button& button)
-{
-    window.draw(button.background); 
-    window.draw(button.text);
-};
-
-VOID RotateBackgroundTextureRect(Menu& menu, const std::string& backgroundName)
-{
+VOID Button::Update(sf::RenderWindow& window, float deltaTime) {
 
 }
 
-VOID BounceBackgroundTextureRect(Menu& menu, const std::string& backgroundName)
+VOID Button::Render(sf::RenderWindow& window)
 {
-    std::map<std::string, sf::Sprite*> menuSpriteMap = SpriteManager::getObjSpriteMap(menu.data.getId());
+    window.draw(background); 
+    window.draw(text);
+};
+
+VOID Menu::BounceBackgroundTextureRect(const std::string& backgroundName)
+{
+    std::map<std::string, sf::Sprite*> menuSpriteMap = SpriteManager::getObjSpriteMap(getId());
     if(menuSpriteMap.find(backgroundName) == menuSpriteMap.end())
     {
         return;
@@ -40,48 +39,55 @@ VOID BounceBackgroundTextureRect(Menu& menu, const std::string& backgroundName)
     sf::IntRect textureRect = backgroundSprite->getTextureRect();
     
     if (textureRect.position.x < 0 || (textureRect.position.x + textureRect.size.x) >= bounds.x) { 
-        menuMoveVectors[menu.name].x *= -1;
+        menuMoveVectors[name].x *= -1;
     }
     else if(textureRect.position.y < 0 || (textureRect.position.y + textureRect.size.y) >= bounds.y) { 
-        menuMoveVectors[menu.name].y *= -1;
+        menuMoveVectors[name].y *= -1;
     }
  
     backgroundSprite->setTextureRect(sf::IntRect(
-        {textureRect.position.x + menuMoveVectors[menu.name].x, textureRect.position.y + menuMoveVectors[menu.name].y},
+        {textureRect.position.x + menuMoveVectors[name].x, textureRect.position.y + menuMoveVectors[name].y},
         {BASE_WIN_WIDTH, BASE_WIN_HEIGHT}
     ));
 }
 
-VOID UpdateMenu(sf::RenderWindow& window, Menu& menu, float deltaTime) 
+VOID Menu::Update(sf::RenderWindow& window, float deltaTime) 
 {
+    // Update each button
+    for (Button menuButton : buttons)
+    {
+        menuButton.Update(window, deltaTime); 
+    }
+
     // TEST: Rotate the world sprite one degree/sec
-    sf::Sprite* rotateSprite = SpriteManager::getObjSpriteMap(menu.data.getId())["world"];
+    sf::Sprite* rotateSprite = SpriteManager::getObjSpriteMap(getId())["world"];
     rotateSprite->rotate(sf::degrees(4.f * deltaTime));
 }
 
-VOID RenderMenu(sf::RenderWindow& window, Menu& menu) 
+VOID Menu::Render(sf::RenderWindow& window) 
 {
     // Draw the menu background
-    window.draw(menu.backgroundRect);
+    window.draw(backgroundRect);
 
     // if(menuMoveVectors.find(menu.name) != menuMoveVectors.end()) 
     // {
     //     BounceBackgroundTextureRect(menu, "world");
     // }
 
-    for(auto& sprite : SpriteManager::getObjSpriteMap(menu.data.getId()))
+    for(auto& sprite : SpriteManager::getObjSpriteMap(getId()))
     {
         window.draw(*sprite.second);
     }
 
     // Render each button
-    for (Button menuButton : menu.buttons)
+    for (Button menuButton : buttons)
     {
-        RenderButton(window, menuButton); 
+        std::string btnString = menuButton.text.getString();
+        menuButton.Render(window);
     }
 };
 
-Button CreateButton(
+Button::Button(
     float xpos, float ypos, 
     float width, float height, 
     int textSize,
@@ -90,51 +96,42 @@ Button CreateButton(
     sf::Color buttonColor,
     bool centerText,
     bool boldText,
-    bool underlineText)
+    bool underlineText) : text(*FontManager::getFont("default"))
 {
-    // Button1
-    sf::Text buttonText(*FontManager::getFont("default")); // a font is required to make a text object
     // set the string to display
-    buttonText.setString(textString);
+    text.setString(textString);
     // set the character size
-    buttonText.setCharacterSize(16); // in pixels, not points!
+    text.setCharacterSize(16); // in pixels, not points!
     // set the color
-    buttonText.setFillColor(textColor);
+    text.setFillColor(textColor);
     // set the position
-    buttonText.setPosition({xpos+(width/2), ypos+(height/2)});
+    text.setPosition({xpos+(width/2), ypos+(height/2)});
 
     // set the text style
     if(boldText) {
-        buttonText.setStyle(sf::Text::Bold);
+        text.setStyle(sf::Text::Bold);
     }
     if(underlineText) {
-        buttonText.setStyle(sf::Text::Underlined);
+        text.setStyle(sf::Text::Underlined);
     }
 
     // Get the local bounds of the text
-    sf::FloatRect textBounds = buttonText.getLocalBounds();
+    sf::FloatRect textBounds = text.getLocalBounds();
 
     // Set origin to the center of the text
     if(centerText) {
-        buttonText.setOrigin(
+        text.setOrigin(
             {textBounds.position.x + textBounds.size.x / 2.0f,
             textBounds.position.y + textBounds.size.y / 2.0f}
         );
     }
 
-    sf::RectangleShape buttonRect = sf::RectangleShape({width,height});
-    buttonRect.setPosition({xpos,ypos});
-    buttonRect.setFillColor(buttonColor);
+    background = sf::RectangleShape({width,height});
+    background.setPosition({xpos,ypos});
+    background.setFillColor(buttonColor);
 
-    buttonRect.setOutlineThickness(2);
-    buttonRect.setOutlineColor(sf::Color::Black);
-
-    Button button = {
-        buttonText,
-        buttonRect
-    };
-
-    return button;    
+    background.setOutlineThickness(2);
+    background.setOutlineColor(sf::Color::Black);
 };
 
 Menu GenerateTestMenu(float width, float height)
@@ -147,7 +144,7 @@ Menu GenerateTestMenu(float width, float height)
 
     backgroundRect.setFillColor(sf::Color(50,50,50));
 
-    Button btn1 = CreateButton(
+    Button btn1(
         100,100, // position
         200,100, // size
         16,
@@ -157,7 +154,7 @@ Menu GenerateTestMenu(float width, float height)
         1,1,1
     );
     
-    Button btn2 = CreateButton(
+    Button btn2(
         100,220, // position
         200,100, // size
         16,
@@ -167,7 +164,7 @@ Menu GenerateTestMenu(float width, float height)
         1,1,1
     );
 
-    Button btn3 = CreateButton(
+    Button btn3(
         100,340, // position 
         200,100, // size
         16,
@@ -185,17 +182,17 @@ Menu GenerateTestMenu(float width, float height)
 
     sf::Sprite backgroundSprite(texture);
 
-    Menu menu = {ObjData(), -1,"test",backgroundRect,menuBtns};
+    Menu menu = {-1,"test",backgroundRect,menuBtns};
     
     Debug("Return");
     return menu;
 }
 
-VOID CheckMouseCollisions(Menu& menu, float mouseX, float mouseY)
+VOID Menu::CheckMouseCollisions(float mouseX, float mouseY)
 {
     int buttonIndex = 0;
-    menu.activeButtonIndex = -1;
-    for(Button& btn : menu.buttons) 
+    activeButtonIndex = -1;
+    for(Button& btn : buttons) 
     {
         sf::Vector2 btnPos = btn.background.getPosition();
         sf::Vector2 btnSize = btn.background.getSize();
@@ -206,7 +203,7 @@ VOID CheckMouseCollisions(Menu& menu, float mouseX, float mouseY)
         {
             btn.text.setFillColor(sf::Color::White); 
             btn.background.setOutlineColor(sf::Color::White);
-            menu.activeButtonIndex = buttonIndex;
+            activeButtonIndex = buttonIndex;
             break;
         }
         else {
@@ -219,7 +216,7 @@ VOID CheckMouseCollisions(Menu& menu, float mouseX, float mouseY)
 };
 
 
-Menu LoadMenu(const std::filesystem::path& filePath)
+Menu LoadMenuFromFile(const std::filesystem::path& filePath)
 {
     std::unordered_map<std::string, std::vector<std::string>> csvData = LoadDataCSV(filePath);
 
@@ -267,7 +264,7 @@ Menu LoadMenu(const std::filesystem::path& filePath)
         sf::Color buttonColor = ParseColorString(buttonColorStr);
         sf::Color textColor = ParseColorString(textColorStr);
 
-        Button button = CreateButton(
+        Button button(
             stoi(button_pos[0]),stoi(button_pos[1]), // position
             stoi(button_size[0]),stoi(button_size[1]), // size
             textSize,
@@ -288,7 +285,7 @@ Menu LoadMenu(const std::filesystem::path& filePath)
 
     backgroundRect.setFillColor(menuColor);
 
-    Menu mainMenu = Menu({ObjData(), -1, menuName, backgroundRect, buttons});
+    Menu menu = Menu(-1, menuName, backgroundRect, buttons);
 
     sf::Texture* backgroundTexture = TextureManager::loadTexture(backgroundTextureName, backgroundTexturePath);
     sf::Sprite* backgroundSprite = new sf::Sprite(*backgroundTexture);
@@ -303,7 +300,7 @@ Menu LoadMenu(const std::filesystem::path& filePath)
 
     backgroundSprite->setScale({scaleX, scaleY});    
 
-    SpriteManager::addSprite("background", backgroundSprite, mainMenu.data.getId());
+    SpriteManager::addSprite("background", backgroundSprite, menu.getId());
 
-    return mainMenu;
+    return menu;
 }
