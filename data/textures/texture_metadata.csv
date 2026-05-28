@@ -1,0 +1,3 @@
+### texture_file_name:animation_name|frame1YPos,frame1YPos,frame1Width,frame1Height|frame2YPos,frame2YPos,frame2Width,frame2Height|...
+test_spritesheet.png:test_animation1|0,0,100,100|100,0,100,100
+test_spritesheet.png:test_animation2|0,100,100,100|100,100,100,100

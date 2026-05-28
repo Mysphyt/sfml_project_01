@@ -12,6 +12,7 @@ for %%f in (
     , sprite_manager
     , module
     , dvd_logo
+    , sprite_editor
 ) do (
     echo compiling %%f
     g++ -c -L.\include\SFML-3.0.2\lib -I.\include\SFML-3.0.2\include lib\%%f.cpp -DSFML_STATIC -o bin\%%f.o

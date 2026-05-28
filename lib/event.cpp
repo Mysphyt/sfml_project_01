@@ -3,6 +3,7 @@
 #include "menu.h"
 #include "module.h"
 #include "dvd_logo.h"
+#include "sprite_editor.h"
 
 const void onClose (sf::RenderWindow& window, const sf::Event::Closed& closed)
 {
@@ -19,7 +20,7 @@ const void onResized (sf::RenderWindow& window, const sf::Event::Resized& resize
 
     window.close();
 
-    window.create(sf::VideoMode({visibleArea.size.x, visibleArea.size.y}), "window");
+    window.create(sf::VideoMode({static_cast<unsigned int>(visibleArea.size.x), static_cast<unsigned int>(visibleArea.size.y)}), "window");
 
     window.setView(sf::View(sf::FloatRect({0.f, 0.f}, {BASE_WIN_WIDTH, BASE_WIN_HEIGHT})));
 };
@@ -82,6 +83,11 @@ const void onMouseButtonPressed (sf::RenderWindow &window, const sf::Event::Mous
         if(buttonString == "DVD Logo") 
         {
             CURR_MODULE = new DvDLogo("dvd_logo");
+            CURR_PROGRAM_STATE = ProgramState::MODULE;
+        }
+        else if(buttonString == "Sprite Editor") 
+        {
+            CURR_MODULE = new SpriteEditor("sprite_editor", window, "Halberdier", "Halberdier.png");
             CURR_PROGRAM_STATE = ProgramState::MODULE;
         }
         else if(buttonString == "Quit") 

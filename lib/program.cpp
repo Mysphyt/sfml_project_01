@@ -9,6 +9,8 @@
 std::stack<Menu> MENUS;
 Module* CURR_MODULE;
 ProgramState CURR_PROGRAM_STATE;
+std::map<std::string, std::map<std::string, std::string>> TEXTURE_DATA;
+
 // ...
 
 void InitProgram() {

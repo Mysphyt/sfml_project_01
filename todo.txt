@@ -1,0 +1,3 @@
+Module to generate sprite metadata by clicking on pixel locations on a spritesheet. Creates horizontal and vertical lines and saves data to a metadata file.
+
+

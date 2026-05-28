@@ -5,6 +5,15 @@
 #include <map>
 #include <string>
 
+#include "data.h"
+
+struct SimpleRect {
+    unsigned int xPos;     
+    unsigned int yPos;
+    unsigned int height;
+    unsigned int width;
+};
+
 class TextureManager {
 public:
     // Load a texture from file and store it with a name
@@ -16,8 +25,13 @@ public:
     // Clean up all loaded textures
     static void cleanup();
 
+    static void loadMetadata();
+
 private:
-    static std::map<std::string, sf::Texture*> textures; // Map to store textures
+    static std::map<std::string, sf::Texture*> TEXTURES; // Map to store textures
+
+    // { texture_name : { animation_name:animation_bounds }, ... }
+    static std::map<std::string, std::map<std::string, std::vector<SimpleRect>>> SPRITE_SHEET_DATA; // 
 };
 
 #endif

@@ -31,8 +31,10 @@ std::unordered_map<std::string, std::vector<std::string>> LoadDataCSV(const std:
     std::string line;
     while (std::getline(file, line))
     {
-        std::cout << line << std::endl;
-        if (line.empty())
+        if (line.empty()) // Nothing to read
+            continue;
+
+        if (line[0] == '#') // Ignore comments
             continue;
 
         const size_t colonPos = line.find(':');

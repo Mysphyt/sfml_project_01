@@ -231,15 +231,7 @@ Menu LoadMenuFromFile(const std::filesystem::path& filePath)
     std::string menuColorStr = menuDataValues[1];
     sf::Color menuColor = ParseColorString(menuColorStr);
     
-    std::vector<std::string> menuMoveVectorStr = SplitString(menuDataValues[2], ',');
-
-    sf::Vector2<int> menuMoveVector({stoi(menuMoveVectorStr[0]), stoi(menuMoveVectorStr[1])});
-    if (menuMoveVector.x != 0 || menuMoveVector.y != 0) 
-    {
-        menuMoveVectors[menuName] = menuMoveVector;
-    }
-
-    std::vector<std::string> backgroundTextureData = SplitString(menuDataValues[3], ',');
+    std::vector<std::string> backgroundTextureData = SplitString(menuDataValues[2], ',');
     std::string backgroundTextureName = backgroundTextureData[0];
     std::string backgroundTexturePath = backgroundTextureData[1];
  
