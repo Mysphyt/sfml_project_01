@@ -60,40 +60,45 @@ SpriteChopper::SpriteChopper(
     window.setView(sf::View(sf::FloatRect({0.f, 0.f}, {BASE_WIN_WIDTH, BASE_WIN_HEIGHT})));
 }
 
-std::vector<std::vector<sf::RectangleShape>> SpriteChopper::getAnimRects()
+std::vector<std::vector<sf::RectangleShape>> SpriteChopper::getAnimRects(bool saving)
 {
     std::vector<std::vector<sf::RectangleShape>> newAnimRects = {};
     for (int animIt = 0; animIt < spriteSheetAnimationFloors.size(); animIt++) // For each animation
     {
         newAnimRects.push_back({});
         auto animVerts = spriteSheetAnimationVertices[animIt];
-        if(currMode == ChopperMode::SET_NEXT_ANIM_VERT) 
-        {
-            animVerts.push_back(currMousePos);
-        }
+
         for (int vertIt = 0; vertIt < animVerts.size(); vertIt++)
         {
             sf::Vector2i currAnimVert, nextAnimVert = {0,0};
-            float rectWidth, rectHeight = 0;
+            float rectWidth, rectHeight, rectPosX, rectPosY = 0;
+
             if(vertIt < animVerts.size() - 1) // Not the last index
             {
                 currAnimVert = animVerts[vertIt];
                 nextAnimVert = animVerts[vertIt+1];
             }
-            else if(spriteSheetAnimationXBounds[animIt] > 0) // Last index, draw to the anim XBounds
-            {
-                currAnimVert = animVerts[vertIt];
-                nextAnimVert = {spriteSheetAnimationXBounds[animIt],currAnimVert.y};
-            }
             else
             {
-                continue;
+                if(saving || currMode == ChopperMode::SET_ANIM_FLOOR || animIt != currAnimIndex)
+                {
+                    // Ignore if saving, setting floor, or not the current Animation
+                    continue;
+                }
+                // Draw the "next" rect to the current mouse position
+                currAnimVert = animVerts[vertIt];
+                nextAnimVert = currMousePos;
             }
-            int rectOutlineWidth = 2;
+
             rectWidth = nextAnimVert.x - currAnimVert.x;
-            rectHeight = spriteSheetAnimationFloors[animIt] - currAnimVert.y;
+            rectHeight = spriteSheetAnimationFloors[animIt] - nextAnimVert.y;
+
+            rectPosX = currAnimVert.x;
+            rectPosY = nextAnimVert.y;
+
+            int rectOutlineWidth = 2;
             sf::RectangleShape newAnimRect({rectWidth-rectOutlineWidth, rectHeight});
-            newAnimRect.setPosition({static_cast<float>(currAnimVert.x), static_cast<float>(currAnimVert.y)});
+            newAnimRect.setPosition({rectPosX, rectPosY});
             newAnimRect.setFillColor({0,0,0,0}); // Transparent fill
             newAnimRect.setOutlineThickness(rectOutlineWidth);
             newAnimRect.setOutlineColor({0,255,100,150});
@@ -134,9 +139,22 @@ void SpriteChopper::render(sf::RenderWindow& window)
 
     if (animRects.size() > 0)
     {
-        for (auto animRect : animRects[currAnimIndex])
+        for (int animIt=0; animIt < animRects.size(); animIt++)
         {
-            window.draw(animRect);
+            for (auto animRect : animRects[animIt])
+            {
+                auto rectPos = animRect.getPosition();
+                auto rectSize = animRect.getSize();
+
+                sf::RectangleShape midRect({0, rectSize.y});
+                midRect.setPosition({rectPos.x+(rectSize.x/2),rectPos.y});
+                midRect.setFillColor({0,0,0,0});
+                midRect.setOutlineColor({255,0,255,100});
+                midRect.setOutlineThickness(1);
+
+                window.draw(midRect);
+                window.draw(animRect);
+            }
         }
     }
 
@@ -164,6 +182,7 @@ void SpriteChopper::onKeyPressed (sf::RenderWindow &window, const sf::Event::Key
             // Update the animation index
             currAnimIndex++;
             animNumText.setString(std::to_string(currAnimIndex)); 
+            currMode = ChopperMode::SET_ANIM_FLOOR;
             modeText.setString("Mode <SET_ANIM_FLOOR> Anim#"+std::to_string(currAnimIndex));
 
             // Add placeholder element to data vectors
@@ -183,12 +202,6 @@ void SpriteChopper::onKeyPressed (sf::RenderWindow &window, const sf::Event::Key
         {
             currMode = ChopperMode::SET_NEXT_ANIM_VERT; 
             modeText.setString("Mode <SET_ANIM_VERT> Vert#"+std::to_string(currVertIndex));
-            break;
-        }
-        case sf::Keyboard::Scancode::E:
-        {
-            currMode = ChopperMode::SET_ANIM_END; 
-            modeText.setString("Mode <SET_ANIM_END>");
             break;
         }
         case sf::Keyboard::Scancode::S:
@@ -232,12 +245,7 @@ void SpriteChopper::onMouseButtonPressed (sf::RenderWindow &window, const sf::Ev
             spriteSheetAnimationVertices[currAnimIndex].push_back(currMousePos);
             int numVerts = spriteSheetAnimationVertices[currAnimIndex].size();
             modeText.setString("Mode <SET_ANIM_VERT> Vert# "+std::to_string(numVerts));
-            animRects = getAnimRects();
-            break;
-        }
-        case ChopperMode::SET_ANIM_END:
-        {
-            spriteSheetAnimationXBounds[currAnimIndex] = currMousePos.x;
+            animRects = getAnimRects(false);
             break;
         }
         default:
@@ -260,7 +268,7 @@ void SpriteChopper::onMouseMoved (sf::RenderWindow &window, const sf::Event::Mou
 
     if(animRects.size() > 0)
     {
-        animRects = getAnimRects();
+        animRects = getAnimRects(false);
     }
 }
 
@@ -274,13 +282,14 @@ void SpriteChopper::saveSpriteData()
     std::vector<std::string> animDataStrings;
 
     if (file.is_open()) {
-        animRects = getAnimRects();
+        animRects = getAnimRects(true);
         for (int animIt = 0; animIt < animRects.size(); animIt++) 
         {
             animDataStrings.push_back(std::to_string(animIt)+":");
             for (int rectIt = 0; rectIt < animRects[animIt].size(); rectIt++)
             {
                 sf::RectangleShape frameRect = animRects[animIt][rectIt];
+
                 auto frameRectSize = frameRect.getSize();
                 std::string frameRectW = std::to_string(static_cast<int>(frameRectSize.x));
                 std::string frameRectH = std::to_string(static_cast<int>(frameRectSize.y));
@@ -289,7 +298,7 @@ void SpriteChopper::saveSpriteData()
                 std::string frameRectX = std::to_string(static_cast<int>(frameRectPos.x));
                 std::string frameRectY = std::to_string(static_cast<int>(frameRectPos.y));
 
-                std::string animString = frameRectW + ',' + frameRectH + ',' + frameRectX + ',' + frameRectY;
+                std::string animString = '|' + frameRectW + ',' + frameRectH + '|' + frameRectX + ',' + frameRectY;
                 animDataStrings[animIt] += animString;
                 std::cout << animString << std::endl;
             }

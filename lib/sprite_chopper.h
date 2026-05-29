@@ -5,8 +5,7 @@
 
 enum class ChopperMode {
     SET_ANIM_FLOOR,
-    SET_NEXT_ANIM_VERT,
-    SET_ANIM_END
+    SET_NEXT_ANIM_VERT 
 };
 
 class SpriteChopper : public Module {
@@ -47,7 +46,7 @@ protected:
     //      {0,100},{100,100}
     //    }
 
-    std::vector<std::vector<sf::RectangleShape>> getAnimRects();
+    std::vector<std::vector<sf::RectangleShape>> getAnimRects(bool saving);
     std::vector<std::vector<sf::RectangleShape>> animRects;
 
     std::vector<std::vector<sf::Vector2i>> spriteSheetAnimationVertices;
