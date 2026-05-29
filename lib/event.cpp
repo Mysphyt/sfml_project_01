@@ -3,7 +3,7 @@
 #include "menu.h"
 #include "module.h"
 #include "dvd_logo.h"
-#include "sprite_editor.h"
+#include "sprite_chopper.h"
 
 const void onClose (sf::RenderWindow& window, const sf::Event::Closed& closed)
 {
@@ -35,6 +35,10 @@ const void onKeyPressed (sf::RenderWindow &window, const sf::Event::KeyPressed& 
     else 
     {
         Debug("Key Pressed: "+sf::Keyboard::getDescription(keyPressed.scancode).toAnsiString());
+    }
+    if (CURR_MODULE != nullptr)
+    {
+        CURR_MODULE->onKeyPressed(window, keyPressed);
     }
 };
 
@@ -74,7 +78,8 @@ const void onMouseButtonPressed (sf::RenderWindow &window, const sf::Event::Mous
         Debug("mouse y: "+std::to_string(mouseButtonPressed.position.y));
     }
 
-    if(MENUS.top().activeButtonIndex != -1) 
+    // Branching logic for different menu buttons
+    if(CURR_PROGRAM_STATE == ProgramState::MENU & MENUS.top().activeButtonIndex != -1)  // Check if there is an active button
     {
         std::string buttonString = MENUS.top().buttons[MENUS.top().activeButtonIndex].text.getString();
         std::cout << "Clicked Button: " << buttonString << std::endl;
@@ -85,9 +90,9 @@ const void onMouseButtonPressed (sf::RenderWindow &window, const sf::Event::Mous
             CURR_MODULE = new DvDLogo("dvd_logo");
             CURR_PROGRAM_STATE = ProgramState::MODULE;
         }
-        else if(buttonString == "Sprite Editor") 
+        else if(buttonString == "Sprite Chopper") 
         {
-            CURR_MODULE = new SpriteEditor("sprite_editor", window, "Halberdier", "Halberdier.png");
+            CURR_MODULE = new SpriteChopper("sprite_chopper", window, "Halberdier", "Halberdier.png");
             CURR_PROGRAM_STATE = ProgramState::MODULE;
         }
         else if(buttonString == "Quit") 
@@ -102,6 +107,10 @@ const void onMouseButtonPressed (sf::RenderWindow &window, const sf::Event::Mous
             }
         }
     }
+    else if(CURR_PROGRAM_STATE == ProgramState::MODULE & CURR_MODULE != nullptr)
+    {
+        CURR_MODULE->onMouseButtonPressed(window, mouseButtonPressed);
+    }
 };
 
 const void onMouseMoved (sf::RenderWindow &window, const sf::Event::MouseMoved& mouseMoved)
@@ -110,5 +119,13 @@ const void onMouseMoved (sf::RenderWindow &window, const sf::Event::MouseMoved& 
     // Debug("new mouse y: "+std::to_string(mouseMoved.position.y));   
     sf::Vector2f mouseViewPos = window.mapPixelToCoords(mouseMoved.position);
 
-    MENUS.top().CheckMouseCollisions(mouseViewPos.x, mouseViewPos.y);
+    if (MENUS.size() > 0)
+    {
+        MENUS.top().CheckMouseCollisions(mouseViewPos.x, mouseViewPos.y);
+    }
+
+    if (CURR_MODULE != nullptr)
+    {
+        CURR_MODULE->onMouseMoved(window, mouseMoved);
+    }
 };

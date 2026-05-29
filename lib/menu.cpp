@@ -14,7 +14,7 @@ sf::Color ParseColorString(const std::string& colorStr)
     uint8_t menuB = stoi(menuColorValues[2]);
     sf::Color menuColor = sf::Color({menuR, menuG, menuB});   
     return menuColor;
-};
+}
 
 VOID Button::Update(sf::RenderWindow& window, float deltaTime) {
 
@@ -24,7 +24,7 @@ VOID Button::Render(sf::RenderWindow& window)
 {
     window.draw(background); 
     window.draw(text);
-};
+}
 
 VOID Menu::BounceBackgroundTextureRect(const std::string& backgroundName)
 {
