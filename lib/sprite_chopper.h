@@ -47,6 +47,9 @@ protected:
     //      {0,100},{100,100}
     //    }
 
+    std::vector<std::vector<sf::RectangleShape>> getAnimRects();
+    std::vector<std::vector<sf::RectangleShape>> animRects;
+
     std::vector<std::vector<sf::Vector2i>> spriteSheetAnimationVertices;
     std::vector<unsigned int> spriteSheetAnimationFloors;
     std::vector<unsigned int> spriteSheetAnimationXBounds;

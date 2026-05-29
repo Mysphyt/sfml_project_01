@@ -60,6 +60,50 @@ SpriteChopper::SpriteChopper(
     window.setView(sf::View(sf::FloatRect({0.f, 0.f}, {BASE_WIN_WIDTH, BASE_WIN_HEIGHT})));
 }
 
+std::vector<std::vector<sf::RectangleShape>> SpriteChopper::getAnimRects()
+{
+    std::vector<std::vector<sf::RectangleShape>> newAnimRects = {};
+    for (int animIt = 0; animIt < spriteSheetAnimationFloors.size(); animIt++) // For each animation
+    {
+        newAnimRects.push_back({});
+        auto animVerts = spriteSheetAnimationVertices[animIt];
+        if(currMode == ChopperMode::SET_NEXT_ANIM_VERT) 
+        {
+            animVerts.push_back(currMousePos);
+        }
+        for (int vertIt = 0; vertIt < animVerts.size(); vertIt++)
+        {
+            sf::Vector2i currAnimVert, nextAnimVert = {0,0};
+            float rectWidth, rectHeight = 0;
+            if(vertIt < animVerts.size() - 1) // Not the last index
+            {
+                currAnimVert = animVerts[vertIt];
+                nextAnimVert = animVerts[vertIt+1];
+            }
+            else if(spriteSheetAnimationXBounds[animIt] > 0) // Last index, draw to the anim XBounds
+            {
+                currAnimVert = animVerts[vertIt];
+                nextAnimVert = {spriteSheetAnimationXBounds[animIt],currAnimVert.y};
+            }
+            else
+            {
+                continue;
+            }
+            int rectOutlineWidth = 2;
+            rectWidth = nextAnimVert.x - currAnimVert.x;
+            rectHeight = spriteSheetAnimationFloors[animIt] - currAnimVert.y;
+            sf::RectangleShape newAnimRect({rectWidth-rectOutlineWidth, rectHeight});
+            newAnimRect.setPosition({static_cast<float>(currAnimVert.x), static_cast<float>(currAnimVert.y)});
+            newAnimRect.setFillColor({0,0,0,0}); // Transparent fill
+            newAnimRect.setOutlineThickness(rectOutlineWidth);
+            newAnimRect.setOutlineColor({0,255,100,150});
+            newAnimRects[animIt].push_back(newAnimRect);
+        }
+    }
+    return newAnimRects;
+}
+
+
 void SpriteChopper::update(sf::RenderWindow& window, float DeltaTime) 
 {
 
@@ -72,38 +116,7 @@ void SpriteChopper::render(sf::RenderWindow& window)
         window.draw(*sprite.second);
     }
 
-    std::vector<sf::RectangleShape> animRects;
-    for (int animIt = 0; animIt < spriteSheetAnimationFloors.size(); animIt++) // For each animation
-    {
-        for (int vertIt = 0; vertIt < spriteSheetAnimationVertices[animIt].size(); vertIt++)
-        {
-            sf::Vector2i currAnimVert, nextAnimVert = {0,0};
-            float rectWidth, rectHeight = 0;
-            if(vertIt < spriteSheetAnimationVertices[animIt].size() - 1) // Not the last index
-            {
-                currAnimVert = spriteSheetAnimationVertices[animIt][vertIt];
-                nextAnimVert = spriteSheetAnimationVertices[animIt][vertIt+1];
-            }
-            else if(spriteSheetAnimationXBounds[animIt] > 0) // Last index, draw to the anim XBounds
-            {
-                currAnimVert = spriteSheetAnimationVertices[animIt][vertIt];
-                nextAnimVert = {spriteSheetAnimationXBounds[animIt],currAnimVert.y};
-            }
-            else
-            {
-                continue;
-            }
-            int rectOutlineWidth = 2;
-            rectWidth = nextAnimVert.x - currAnimVert.x;
-            rectHeight = spriteSheetAnimationFloors[animIt] - currAnimVert.y;
-            sf::RectangleShape animRect({rectWidth-rectOutlineWidth, rectHeight});
-            animRect.setPosition({static_cast<float>(currAnimVert.x), static_cast<float>(currAnimVert.y)});
-            animRect.setFillColor({0,0,0,0}); // Transparent fill
-            animRect.setOutlineThickness(rectOutlineWidth);
-            animRect.setOutlineColor({0,255,100,150});
-            animRects.push_back(animRect);
-        }
-    }
+
     sf::RectangleShape yMouseLineRect({0,BASE_WIN_HEIGHT});
     sf::RectangleShape xMouseLineRect({BASE_WIN_WIDTH,0});
 
@@ -119,9 +132,12 @@ void SpriteChopper::render(sf::RenderWindow& window)
     yMouseLineRect.setFillColor({0,0,0});
     xMouseLineRect.setFillColor({0,0,0});
 
-    for (auto animRect : animRects)
+    if (animRects.size() > 0)
     {
-        window.draw(animRect);
+        for (auto animRect : animRects[currAnimIndex])
+        {
+            window.draw(animRect);
+        }
     }
 
     window.draw(xMouseLineRect);
@@ -154,6 +170,7 @@ void SpriteChopper::onKeyPressed (sf::RenderWindow &window, const sf::Event::Key
             spriteSheetAnimationFloors.push_back(0);
             spriteSheetAnimationXBounds.push_back(0);
             spriteSheetAnimationVertices.push_back({});
+            animRects.push_back({});
             break;
         }
         case sf::Keyboard::Scancode::F:
@@ -172,6 +189,11 @@ void SpriteChopper::onKeyPressed (sf::RenderWindow &window, const sf::Event::Key
         {
             currMode = ChopperMode::SET_ANIM_END; 
             modeText.setString("Mode <SET_ANIM_END>");
+            break;
+        }
+        case sf::Keyboard::Scancode::S:
+        {
+            saveSpriteData();
             break;
         }
         default:
@@ -196,6 +218,7 @@ void SpriteChopper::onMouseButtonPressed (sf::RenderWindow &window, const sf::Ev
         spriteSheetAnimationFloors.push_back(0);
         spriteSheetAnimationXBounds.push_back(0);
         spriteSheetAnimationVertices.push_back({});
+        animRects.push_back({});
     }
     switch(currMode)
     {
@@ -209,6 +232,7 @@ void SpriteChopper::onMouseButtonPressed (sf::RenderWindow &window, const sf::Ev
             spriteSheetAnimationVertices[currAnimIndex].push_back(currMousePos);
             int numVerts = spriteSheetAnimationVertices[currAnimIndex].size();
             modeText.setString("Mode <SET_ANIM_VERT> Vert# "+std::to_string(numVerts));
+            animRects = getAnimRects();
             break;
         }
         case ChopperMode::SET_ANIM_END:
@@ -233,9 +257,51 @@ void SpriteChopper::onMouseMoved (sf::RenderWindow &window, const sf::Event::Mou
     positionText.setString(std::to_string(roundedX)+","+std::to_string(roundedY));
 
     currMousePos = sf::Vector2i({roundedX,roundedY});
+
+    if(animRects.size() > 0)
+    {
+        animRects = getAnimRects();
+    }
 }
 
 void SpriteChopper::saveSpriteData() 
 {
+    std::filesystem::path metadataFilePath = "data/textures/"+spriteSheetName+"_metadata";
 
+    std::cout<<"Writing to file " <<metadataFilePath<<std::endl;
+    std::ofstream file(metadataFilePath);
+
+    std::vector<std::string> animDataStrings;
+
+    if (file.is_open()) {
+        animRects = getAnimRects();
+        for (int animIt = 0; animIt < animRects.size(); animIt++) 
+        {
+            animDataStrings.push_back(std::to_string(animIt)+":");
+            for (int rectIt = 0; rectIt < animRects[animIt].size(); rectIt++)
+            {
+                sf::RectangleShape frameRect = animRects[animIt][rectIt];
+                auto frameRectSize = frameRect.getSize();
+                std::string frameRectW = std::to_string(static_cast<int>(frameRectSize.x));
+                std::string frameRectH = std::to_string(static_cast<int>(frameRectSize.y));
+
+                auto frameRectPos = frameRect.getPosition();
+                std::string frameRectX = std::to_string(static_cast<int>(frameRectPos.x));
+                std::string frameRectY = std::to_string(static_cast<int>(frameRectPos.y));
+
+                std::string animString = frameRectW + ',' + frameRectH + ',' + frameRectX + ',' + frameRectY;
+                animDataStrings[animIt] += animString;
+                std::cout << animString << std::endl;
+            }
+        }
+        for(auto animString : animDataStrings)
+        {
+            file << animString << std::endl;
+        }
+        file.close();
+    } 
+    else 
+    {
+        std::cerr << "Unable to open file\n";
+    }
 }
