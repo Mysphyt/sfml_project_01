@@ -4,9 +4,7 @@
 #include <ctime>
 #include <iostream>
 #include <stdio.h>
-#include <conio.h>
 #include <thread>
-#include <windows.h>
 #include <SFML/Graphics.hpp>
 #include <SFML/Window.hpp>
 

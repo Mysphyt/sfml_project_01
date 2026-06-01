@@ -20,6 +20,8 @@ const void onMouseWheelScrolled (sf::RenderWindow &window, const sf::Event::Mous
 
 const void onMouseButtonPressed (sf::RenderWindow &window, const sf::Event::MouseButtonPressed& mouseButtonPressed);
 
+const void onMouseButtonReleased (sf::RenderWindow &window, const sf::Event::MouseButtonReleased& mouseButtonReleased);
+
 const void onMouseMoved (sf::RenderWindow &window, const sf::Event::MouseMoved& mouseMoved);
 
 #endif

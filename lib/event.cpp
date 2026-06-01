@@ -5,6 +5,14 @@
 #include "dvd_logo.h"
 #include "sprite_chopper.h"
 
+const void onMouseButtonReleased (sf::RenderWindow &window, const sf::Event::MouseButtonReleased& mouseButtonReleased)
+{
+    if(CURR_MODULE != nullptr) 
+    {
+        CURR_MODULE->onMouseButtonReleased(window, mouseButtonReleased);
+    } 
+};
+
 const void onClose (sf::RenderWindow& window, const sf::Event::Closed& closed)
 {
     window.close();
@@ -12,6 +20,7 @@ const void onClose (sf::RenderWindow& window, const sf::Event::Closed& closed)
 
 const void onResized (sf::RenderWindow& window, const sf::Event::Resized& resized)
 {
+    /* TODO: Why does this crash my linux system
     Debug("new width: "+std::to_string(resized.size.x));
     Debug("new height: "+std::to_string(resized.size.y));
 
@@ -23,6 +32,8 @@ const void onResized (sf::RenderWindow& window, const sf::Event::Resized& resize
     window.create(sf::VideoMode({static_cast<unsigned int>(visibleArea.size.x), static_cast<unsigned int>(visibleArea.size.y)}), "window");
 
     window.setView(sf::View(sf::FloatRect({0.f, 0.f}, {BASE_WIN_WIDTH, BASE_WIN_HEIGHT})));
+    window.setFramerateLimit(60);
+    */
 };
 
 const void onKeyPressed (sf::RenderWindow &window, const sf::Event::KeyPressed& keyPressed)

@@ -101,36 +101,38 @@ void UpdateProgram(sf::RenderWindow& window, float deltaTime)
         [&window](const sf::Event::MouseMoved mouseMoved) {
             onMouseMoved(window, mouseMoved);
         },
-        [&window](const sf::Event::Resized resized) {
-            onResized(window, resized);
+        [&window](const sf::Event::MouseButtonReleased mouseButtonReleased) {
+            onMouseButtonReleased(window, mouseButtonReleased);
         }
+
+        //, TODO: Resize events crash my Linux system
+        //[&window](const sf::Event::Resized resized) {
+        //    onResized(window, resized);
+        //}
     );
 }
 
 void ProgramLoop(sf::RenderWindow& window) 
 {
-    // Target frame rate
-    auto timeBetweenFrames = std::chrono::microseconds(std::chrono::seconds(1)) / TARGET_FRAME_RATE;
-    auto targetFrameTime = std::chrono::steady_clock::now();
+    sf::Time t;
+    sf::Clock clock;
+    window.setFramerateLimit(60);
 
-    float currentTime, deltaTime, frameDiff, dtime, cdtime;
+    // Target frame rate
 
     // run the program as long as the window is open
     while (window.isOpen())
     {
-        currentTime = clock();
+        clock.restart().asSeconds();
 
-        UpdateProgram(window, deltaTime/1000.f);
+       // currentTime = clock();
+
+        UpdateProgram(window, t.asMilliseconds());
 
         RenderProgram(window);
  
         // <== Program Loop ==
 
-        // Use sleep_until to reach target frame time (does nothing if frame time is already reached)
-        targetFrameTime += timeBetweenFrames;     // calculate target point in time
-        std::this_thread::sleep_until(targetFrameTime);  // sleep until that time point
-
-        // Target frame time calculation
-        deltaTime = clock() - currentTime;
+        t = clock.getElapsedTime();
     }
 };

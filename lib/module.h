@@ -27,6 +27,8 @@ public:
     virtual void onMouseWheelScrolled (sf::RenderWindow &window, const sf::Event::MouseWheelScrolled& mouseWheelScrolled);
     
     virtual void onMouseButtonPressed (sf::RenderWindow &window, const sf::Event::MouseButtonPressed& mouseButtonPressed);
+
+    virtual void onMouseButtonReleased (sf::RenderWindow &window, const sf::Event::MouseButtonReleased& mouseButtonReleased);
     
     virtual void onMouseMoved (sf::RenderWindow &window, const sf::Event::MouseMoved& mouseMoved);
 };

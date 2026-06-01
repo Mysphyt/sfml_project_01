@@ -2,7 +2,6 @@
 #define MENU_H
 #include <iostream>
 #include <string>
-#include <Windows.h>
 #include <SFML/Graphics.hpp>
 #include <vector>
 #include <stack>
@@ -27,9 +26,9 @@ public:
     sf::Text text;
     sf::RectangleShape background;
 
-    VOID Update(sf::RenderWindow& window, float deltaTime);
+    void Update(sf::RenderWindow& window, float deltaTime);
 
-    VOID Render(sf::RenderWindow& window);
+    void Render(sf::RenderWindow& window);
 };
 
 class Menu : public ObjData {
@@ -53,13 +52,13 @@ public:
             backgroundRect = _backgroundRect;
     };
 
-    VOID BounceBackgroundTextureRect(const std::string& backgroundName);
+    void BounceBackgroundTextureRect(const std::string& backgroundName);
      
-    VOID Update(sf::RenderWindow& window, float deltaTime);
+    void Update(sf::RenderWindow& window, float deltaTime);
 
-    VOID Render(sf::RenderWindow& window);
+    void Render(sf::RenderWindow& window);
 
-    VOID CheckMouseCollisions(float mouseX, float mouseY);
+    void CheckMouseCollisions(float mouseX, float mouseY);
 
 };
 

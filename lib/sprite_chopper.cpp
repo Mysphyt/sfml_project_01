@@ -14,11 +14,11 @@ SpriteChopper::SpriteChopper(
         Module(moduleName), 
         positionText(*FontManager::getFont("default")), 
         animNumText(*FontManager::getFont("default")),
-        modeText(*FontManager::getFont("default")),
         currAnimIndex(0),
         currVertIndex(0),
         spriteSheetName(textureName),
-        currMode(ChopperMode::SET_ANIM_FLOOR)
+        movingVert(false),
+        hoveringVert(false)
 {
     positionText.setString("0, 0");
     positionText.setCharacterSize(16);
@@ -29,11 +29,6 @@ SpriteChopper::SpriteChopper(
     animNumText.setCharacterSize(16);
     animNumText.setPosition({5,20});
     animNumText.setFillColor({250,250,250});
-
-    modeText.setString("Mode <SET_ANIM_FLOOR> Anim #"+std::to_string(currAnimIndex));
-    modeText.setCharacterSize(16);
-    modeText.setPosition({5,40});
-    modeText.setFillColor({250,250,250});
 
     sf::Texture* testTexture = TextureManager::loadTexture(textureName, textureFile);
     sf::Sprite* testSprite = new sf::Sprite(*testTexture);
@@ -55,18 +50,30 @@ SpriteChopper::SpriteChopper(
 
     sf::FloatRect visibleArea({0.f, 0.f}, sf::Vector2f(resized));
 
+    // TODO: should call centralized event handling method of Module
     window.close();
-    window.create(sf::VideoMode({static_cast<unsigned int>(visibleArea.size.x), static_cast<unsigned int>(visibleArea.size.y)}), "window");
+    window.create(sf::VideoMode({static_cast<unsigned int>(visibleArea.size.x), static_cast<unsigned int>(visibleArea.size.y)}), "window"); 
     window.setView(sf::View(sf::FloatRect({0.f, 0.f}, {BASE_WIN_WIDTH, BASE_WIN_HEIGHT})));
+    window.setFramerateLimit(60);
 }
 
 std::vector<std::vector<sf::RectangleShape>> SpriteChopper::getAnimRects(bool saving)
 {
     std::vector<std::vector<sf::RectangleShape>> newAnimRects = {};
-    for (int animIt = 0; animIt < spriteSheetAnimationFloors.size(); animIt++) // For each animation
+    for (int animIt = 0; animIt < spriteSheetAnimationVertices.size(); animIt++) // For each animation
     {
         newAnimRects.push_back({});
         auto animVerts = spriteSheetAnimationVertices[animIt];
+
+        sf::Vector2i anchorVert;
+        if (animVerts.size() > 0)
+        {
+            anchorVert = animVerts[0];
+        }
+        else
+        {
+            continue;
+        }
 
         for (int vertIt = 0; vertIt < animVerts.size(); vertIt++)
         {
@@ -78,20 +85,15 @@ std::vector<std::vector<sf::RectangleShape>> SpriteChopper::getAnimRects(bool sa
                 currAnimVert = animVerts[vertIt];
                 nextAnimVert = animVerts[vertIt+1];
             }
-            else
+            else if(!(saving || animIt != currAnimIndex || movingVert || hoveringVert))
             {
-                if(saving || currMode == ChopperMode::SET_ANIM_FLOOR || animIt != currAnimIndex)
-                {
-                    // Ignore if saving, setting floor, or not the current Animation
-                    continue;
-                }
                 // Draw the "next" rect to the current mouse position
                 currAnimVert = animVerts[vertIt];
                 nextAnimVert = currMousePos;
             }
 
             rectWidth = nextAnimVert.x - currAnimVert.x;
-            rectHeight = spriteSheetAnimationFloors[animIt] - nextAnimVert.y;
+            rectHeight = anchorVert.y - nextAnimVert.y;
 
             rectPosX = currAnimVert.x;
             rectPosY = nextAnimVert.y;
@@ -116,20 +118,14 @@ void SpriteChopper::update(sf::RenderWindow& window, float DeltaTime)
 
 void SpriteChopper::render(sf::RenderWindow& window) 
 {
-    for(auto& sprite : SpriteManager::getObjSpriteMap(getId()))
-    {
-        window.draw(*sprite.second);
-    }
-
-
     sf::RectangleShape yMouseLineRect({0,BASE_WIN_HEIGHT});
     sf::RectangleShape xMouseLineRect({BASE_WIN_WIDTH,0});
 
     yMouseLineRect.setPosition({currMousePos.x,0});
     xMouseLineRect.setPosition({0,currMousePos.y});
 
-    yMouseLineRect.setOutlineColor({255,0,0});
-    xMouseLineRect.setOutlineColor({0,0,255});
+    yMouseLineRect.setOutlineColor({255,0,0,100});
+    xMouseLineRect.setOutlineColor({0,0,255,100});
 
     yMouseLineRect.setOutlineThickness(1);
     xMouseLineRect.setOutlineThickness(1);
@@ -158,11 +154,51 @@ void SpriteChopper::render(sf::RenderWindow& window)
         }
     }
 
+    std::vector<sf::CircleShape> vertCircles;
+    for(auto anim : spriteSheetAnimationVertices)
+    {
+        for(auto vert : anim)
+        {
+            sf::CircleShape vertCircle(4.f);    
+            float radius = vertCircle.getRadius();
+            vertCircle.setPosition({vert.x, vert.y});
+            // TODO: move circle logic to update when the mouse moves, not every frame
+            if(vert.x == currMousePos.x && vert.y == currMousePos.y)
+            {
+                // Hovering over an existing vertex
+                vertCircle.setFillColor({255,255,255});
+                hoveringVert = true;
+                activeVert = &vert;
+                if(!movingVert)
+                    animNumText.setString("Hovering - " + std::to_string(currAnimIndex));
+            }
+            else
+            {
+                vertCircle.setFillColor({255,0,255});
+                hoveringVert = false;
+                movingVert = false;
+                activeVert = nullptr;
+                animNumText.setString(std::to_string(currAnimIndex));
+            }
+            vertCircle.setOrigin({radius, radius});
+            vertCircles.push_back(vertCircle);
+        }
+    }
+
+    for(auto& sprite : SpriteManager::getObjSpriteMap(getId()))
+    {
+        window.draw(*sprite.second);
+    }
+
+    for(auto& circle : vertCircles)
+    {
+        window.draw(circle);
+    }
+
     window.draw(xMouseLineRect);
     window.draw(yMouseLineRect);
     window.draw(positionText);
     window.draw(animNumText);
-    window.draw(modeText);
 }
 
 void SpriteChopper::onClose (sf::RenderWindow& window, const sf::Event::Closed& closed)
@@ -182,26 +218,18 @@ void SpriteChopper::onKeyPressed (sf::RenderWindow &window, const sf::Event::Key
             // Update the animation index
             currAnimIndex++;
             animNumText.setString(std::to_string(currAnimIndex)); 
-            currMode = ChopperMode::SET_ANIM_FLOOR;
-            modeText.setString("Mode <SET_ANIM_FLOOR> Anim#"+std::to_string(currAnimIndex));
 
             // Add placeholder element to data vectors
-            spriteSheetAnimationFloors.push_back(0);
-            spriteSheetAnimationXBounds.push_back(0);
             spriteSheetAnimationVertices.push_back({});
             animRects.push_back({});
             break;
         }
         case sf::Keyboard::Scancode::F:
         {
-            currMode = ChopperMode::SET_ANIM_FLOOR; 
-            modeText.setString("Mode <SET_ANIM_FLOOR> Anim#"+std::to_string(currAnimIndex));
             break;
         }
         case sf::Keyboard::Scancode::V:
         {
-            currMode = ChopperMode::SET_NEXT_ANIM_VERT; 
-            modeText.setString("Mode <SET_ANIM_VERT> Vert#"+std::to_string(currVertIndex));
             break;
         }
         case sf::Keyboard::Scancode::S:
@@ -224,39 +252,39 @@ void SpriteChopper::onMouseWheelScrolled (sf::RenderWindow &window, const sf::Ev
 {
 }
 
+void SpriteChopper::onMouseButtonReleased (sf::RenderWindow &window, const sf::Event::MouseButtonReleased& mouseButtonReleased)
+{
+    if(movingVert)
+    {
+        movingVert=false;
+    }
+}
+
 void SpriteChopper::onMouseButtonPressed (sf::RenderWindow &window, const sf::Event::MouseButtonPressed& mouseButtonPressed)
 {
-    if(currAnimIndex >= spriteSheetAnimationFloors.size())
+    if (hoveringVert)
     {
-        spriteSheetAnimationFloors.push_back(0);
-        spriteSheetAnimationXBounds.push_back(0);
-        spriteSheetAnimationVertices.push_back({});
-        animRects.push_back({});
+        movingVert = true;
+        animNumText.setString("Moving - " + std::to_string(currAnimIndex));
     }
-    switch(currMode)
+    else 
     {
-        case ChopperMode::SET_ANIM_FLOOR:
+        animNumText.setString(std::to_string(currAnimIndex));
+        if(currAnimIndex >= spriteSheetAnimationVertices.size())
         {
-            spriteSheetAnimationFloors[currAnimIndex] = currMousePos.y;
-            break;
+            spriteSheetAnimationVertices.push_back({});
+            animRects.push_back({});
         }
-        case ChopperMode::SET_NEXT_ANIM_VERT:
-        {
-            spriteSheetAnimationVertices[currAnimIndex].push_back(currMousePos);
-            int numVerts = spriteSheetAnimationVertices[currAnimIndex].size();
-            modeText.setString("Mode <SET_ANIM_VERT> Vert# "+std::to_string(numVerts));
-            animRects = getAnimRects(false);
-            break;
-        }
-        default:
-        {
-            break;
-        }
+
+        spriteSheetAnimationVertices[currAnimIndex].push_back(currMousePos);
+        int numVerts = spriteSheetAnimationVertices[currAnimIndex].size();
+        animRects = getAnimRects(false);
     }
 }
 
 void SpriteChopper::onMouseMoved (sf::RenderWindow &window, const sf::Event::MouseMoved& mouseMoved)
 {
+
     sf::Vector2f mouseWorldCoords = window.mapPixelToCoords(mouseMoved.position);
     int roundingFactor = 5;
     // Convert to double for rounding, then back to integer
@@ -269,6 +297,12 @@ void SpriteChopper::onMouseMoved (sf::RenderWindow &window, const sf::Event::Mou
     if(animRects.size() > 0)
     {
         animRects = getAnimRects(false);
+    }
+
+    if(movingVert && activeVert != nullptr)
+    {
+        activeVert->x = currMousePos.x;
+        activeVert->y = currMousePos.y;
     }
 }
 

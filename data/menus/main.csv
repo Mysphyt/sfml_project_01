@@ -1,6 +1,0 @@
-### MENU | Color(R,G,B) | Name,image
-MENU:main_menu|50,50,50|night_sky,night_sky.jpg
-### BUTTON | Name | location | size | font size | center 0/1 | underline 0/1 | bold 0/1 | Button Color | Text Color
-BUTTON:DVD Logo|100,100|200,100|16|1|0|0|0,250,0|0,0,0
-BUTTON:Sprite Chopper|100,250|200,100|16|1|0|0|0,0,250|0,0,0
-BUTTON:Quit|100,400|200,100|16|1|0|0|250,0,0|0,0,0

@@ -27,6 +27,10 @@ void Module::onMouseWheelScrolled (sf::RenderWindow &window, const sf::Event::Mo
 
 }
 
+void Module::onMouseButtonReleased (sf::RenderWindow &window, const sf::Event::MouseButtonReleased& mouseButtonReleased) {
+
+}
+
 void Module::onMouseButtonPressed (sf::RenderWindow &window, const sf::Event::MouseButtonPressed& mouseButtonPressed) {
 
 }

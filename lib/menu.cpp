@@ -16,17 +16,17 @@ sf::Color ParseColorString(const std::string& colorStr)
     return menuColor;
 }
 
-VOID Button::Update(sf::RenderWindow& window, float deltaTime) {
+void Button::Update(sf::RenderWindow& window, float deltaTime) {
 
 }
 
-VOID Button::Render(sf::RenderWindow& window)
+void Button::Render(sf::RenderWindow& window)
 {
     window.draw(background); 
     window.draw(text);
 }
 
-VOID Menu::BounceBackgroundTextureRect(const std::string& backgroundName)
+void Menu::BounceBackgroundTextureRect(const std::string& backgroundName)
 {
     std::map<std::string, sf::Sprite*> menuSpriteMap = SpriteManager::getObjSpriteMap(getId());
     if(menuSpriteMap.find(backgroundName) == menuSpriteMap.end())
@@ -51,7 +51,7 @@ VOID Menu::BounceBackgroundTextureRect(const std::string& backgroundName)
     ));
 }
 
-VOID Menu::Update(sf::RenderWindow& window, float deltaTime) 
+void Menu::Update(sf::RenderWindow& window, float deltaTime) 
 {
     // Update each button
     for (Button menuButton : buttons)
@@ -61,10 +61,10 @@ VOID Menu::Update(sf::RenderWindow& window, float deltaTime)
 
     // TEST: Rotate the world sprite one degree/sec
     sf::Sprite* rotateSprite = SpriteManager::getObjSpriteMap(getId())["world"];
-    rotateSprite->rotate(sf::degrees(4.f * deltaTime));
+    rotateSprite->rotate(sf::degrees(0.05f * deltaTime));
 }
 
-VOID Menu::Render(sf::RenderWindow& window) 
+void Menu::Render(sf::RenderWindow& window) 
 {
     // Draw the menu background
     window.draw(backgroundRect);
@@ -188,7 +188,7 @@ Menu GenerateTestMenu(float width, float height)
     return menu;
 }
 
-VOID Menu::CheckMouseCollisions(float mouseX, float mouseY)
+void Menu::CheckMouseCollisions(float mouseX, float mouseY)
 {
     int buttonIndex = 0;
     activeButtonIndex = -1;

@@ -3,11 +3,6 @@
 
 #include "module.h"
 
-enum class ChopperMode {
-    SET_ANIM_FLOOR,
-    SET_NEXT_ANIM_VERT 
-};
-
 class SpriteChopper : public Module {
 public:    
     SpriteChopper(
@@ -33,6 +28,8 @@ public:
     void onMouseWheelScrolled (sf::RenderWindow &window, const sf::Event::MouseWheelScrolled& mouseWheelScrolled) override;
     
     void onMouseButtonPressed (sf::RenderWindow &window, const sf::Event::MouseButtonPressed& mouseButtonPressed) override;
+
+    void onMouseButtonReleased (sf::RenderWindow &window, const sf::Event::MouseButtonReleased& mouseButtonReleased) override;
     
     void onMouseMoved (sf::RenderWindow &window, const sf::Event::MouseMoved& mouseMoved) override;
 
@@ -46,22 +43,23 @@ protected:
     //      {0,100},{100,100}
     //    }
 
+    bool hoveringVert, movingVert;
+    sf::Vector2i* activeVert;
+
     std::vector<std::vector<sf::RectangleShape>> getAnimRects(bool saving);
     std::vector<std::vector<sf::RectangleShape>> animRects;
 
     std::vector<std::vector<sf::Vector2i>> spriteSheetAnimationVertices;
-    std::vector<unsigned int> spriteSheetAnimationFloors;
+    // std::vector<unsigned int> spriteSheetAnimationFloors;
     std::vector<unsigned int> spriteSheetAnimationXBounds;
 
     unsigned int currAnimIndex, currVertIndex;
 
     std::string spriteSheetName;
 
-    sf::Text positionText, animNumText, modeText;
+    sf::Text positionText, animNumText;
 
     sf::Vector2i currMousePos;
-
-    ChopperMode currMode;
 };
 
 #endif

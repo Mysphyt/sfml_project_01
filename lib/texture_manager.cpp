@@ -12,7 +12,7 @@ sf::Texture* TextureManager::loadTexture(const std::string& name, const std::str
 
     // Load the texture
     sf::Texture* texture = new sf::Texture();
-        if (texture->loadFromFile("data/TEXTURES/" + path)) {
+        if (texture->loadFromFile("data/textures/" + path)) {
         TEXTURES[name] = texture;
         return texture;
     }
@@ -30,7 +30,7 @@ sf::Texture* TextureManager::getTexture(const std::string& name) {
     return nullptr;
 }
 
-// Clean up all loaded TEXTURES
+// Clean up all loaded textures
 void TextureManager::cleanup() {
     for (auto& pair : TEXTURES) {
         delete pair.second;
