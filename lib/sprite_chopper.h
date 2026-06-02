@@ -2,6 +2,7 @@
 #define sprite_chopper_H
 
 #include "module.h"
+#include "sprite_manager.h"
 
 class SpriteChopper : public Module {
 public:    
@@ -16,6 +17,8 @@ public:
     void render(sf::RenderWindow& window) override;
 
     void saveSpriteData();
+
+    void loadSpriteData();
 
     void onClose (sf::RenderWindow& window, const sf::Event::Closed& closed) override;
     
@@ -43,8 +46,9 @@ protected:
     //      {0,100},{100,100}
     //    }
 
-    bool hoveringVert, movingVert;
-    sf::Vector2i* activeVert;
+    int activeVertIndex;
+
+    SpriteSheetAnimation animation;
 
     std::vector<std::vector<sf::RectangleShape>> getAnimRects(bool saving);
     std::vector<std::vector<sf::RectangleShape>> animRects;

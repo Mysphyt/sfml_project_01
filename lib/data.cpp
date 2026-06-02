@@ -45,7 +45,9 @@ std::unordered_map<std::string, std::vector<std::string>> LoadDataCSV(const std:
         std::string value = line.substr(colonPos + 1);
 
         if (!key.empty())
+        {  
             result[key].push_back(value);
+        }
     }
 
     return result;

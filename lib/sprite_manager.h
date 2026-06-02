@@ -11,14 +11,18 @@ class SpriteSheetAnimation {
     // 
 public:
     SpriteSheetAnimation(std::string filePath);
-    void Update(sf::RenderWindow& window, float deltaTime);
-private:
-    std::string textureName; // to index SPRITE_SHEET_DATA from texture_manager
-    std::string animationName; // to index the map of animations for this textureName in SPRITE_SHEET_DATA
 
-    unsigned int startIt, endIt, currIt, duration, frameTime;
+    void Update(sf::RenderWindow& window, float deltaTime);
 
     sf::Sprite* spriteSheet;
+private:
+    std::string textureName; // to index SPRITE_SHEET_DATA from texture_manager
+
+    std::string animationName; // to index the map of animations for this textureName in SPRITE_SHEET_DATA
+
+    unsigned int animIt, frameIt, frameDuration, frameTime;
+
+    std::vector<std::vector<sf::IntRect>> animFrameRects;
 };
 
 class SpriteManager {
