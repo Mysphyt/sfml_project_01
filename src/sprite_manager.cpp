@@ -11,7 +11,8 @@ SpriteSheetAnimation::SpriteSheetAnimation(std::string filePath) : animIt(0), fr
     if(texture != nullptr)
     {
         spriteSheet = new sf::Sprite(*texture);
-        spriteSheet->setPosition({500,500});
+        // TODO: Remove this
+        spriteSheet->setPosition({650,500});
     }
     else
     {

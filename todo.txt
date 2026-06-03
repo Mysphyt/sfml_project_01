@@ -1,3 +1,4 @@
-Module to generate sprite metadata by clicking on pixel locations on a spritesheet. Creates horizontal and vertical lines and saves data to a metadata file.
-
-
+sprite chopper
+    fix mouse<>vertex collision bug 
+    allow movement of animation preview
+    fix todos

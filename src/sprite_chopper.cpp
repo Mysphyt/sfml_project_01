@@ -154,8 +154,12 @@ void SpriteChopper::render(sf::RenderWindow& window)
             sf::CircleShape vertCircle(4.f);    
             float radius = vertCircle.getRadius();
             vertCircle.setPosition({vert.x, vert.y});
+
+            bool vertContainsMouseX = (currMousePos.x - 5.f >= vert.x) && (currMousePos.x + 5.f <= vert.x);
+            bool vertContainsMouseY = (currMousePos.y - 5.f >= vert.y) && (currMousePos.y + 5.f <= vert.y);
+
             // TODO: move circle logic to update when the mouse moves, not every frame
-            if((vert.x == currMousePos.x && vert.y == currMousePos.y) && currAnimIndex == animIndex)
+            if((vertContainsMouseX && vertContainsMouseY) && currAnimIndex == animIndex)
             {
                 vertCircle.setFillColor({255,255,255});
                 activeVertIndex=vertIndex;
@@ -244,6 +248,8 @@ void SpriteChopper::onKeyPressed (sf::RenderWindow &window, const sf::Event::Key
             currAnimIndex++;
             animNumText.setString(std::to_string(currAnimIndex)); 
 
+            animation.animIt = currAnimIndex;
+
             // Add placeholder element to data vectors
             spriteSheetAnimationVertices.push_back({});
             animRects = getAnimRects(false);
@@ -322,13 +328,15 @@ void SpriteChopper::onMouseMoved (sf::RenderWindow &window, const sf::Event::Mou
 {
 
     sf::Vector2f mouseWorldCoords = window.mapPixelToCoords(mouseMoved.position);
-    int roundingFactor = 5;
-    // Convert to double for rounding, then back to integer
-    int roundedX = std::round(static_cast<double>(mouseWorldCoords.x) / roundingFactor) * roundingFactor;
-    int roundedY = std::round(static_cast<double>(mouseWorldCoords.y) / roundingFactor) * roundingFactor;
-    positionText.setString(std::to_string(roundedX)+","+std::to_string(roundedY));
+    // int roundingFactor = 5;
+    // // Convert to double for rounding, then back to integer
+    // int roundedX = std::round(static_cast<double>(mouseWorldCoords.x) / roundingFactor) * roundingFactor;
+    // int roundedY = std::round(static_cast<double>(mouseWorldCoords.y) / roundingFactor) * roundingFactor;
 
-    currMousePos = sf::Vector2i({roundedX,roundedY});
+    currMousePos.x = mouseWorldCoords.x; 
+    currMousePos.y = mouseWorldCoords.y; // sf::Vector2i({roundedX,roundedY});
+
+    positionText.setString(std::to_string(currMousePos.x)+","+std::to_string(currMousePos.y));
 
     if(activeVertIndex >= 0 && sf::Mouse::isButtonPressed(sf::Mouse::Button::Left))
     {
@@ -360,14 +368,13 @@ void SpriteChopper::loadSpriteData()
             int animY = stoi(rectData[3])*scaleY;
             if (vertNum == 0)
             {
-                // First vertex is the bottom-left corner of each animation, add height to Y
-                animY+=stoi(rectData[1]);
+                // First vertex is the bottom-left corner of each animation, add height to Y for "anchor" vertex
+                spriteSheetAnimationVertices[animNum].push_back({animX,animY+(stoi(rectData[1])*scaleY)});
             }
-            else
-            {
-                // Otherwise the vertex is the top-right corner of each frame
-                animX+=stoi(rectData[0]);
-            }
+
+            // Vertex is the top-right corner of each frame
+            animX+=stoi(rectData[0])*scaleX;
+
             spriteSheetAnimationVertices[animNum].push_back({animX,animY});
 
             vertNum++;
