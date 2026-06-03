@@ -38,8 +38,8 @@ SpriteChopper::SpriteChopper(
     sf::Vector2u testTextureSize = testTexture->getSize();
 
     // Scale the test texture to the curr resolution
-    float scaleX = static_cast<float>(BASE_WIN_WIDTH) / testTextureSize.x;
-    float scaleY = static_cast<float>(BASE_WIN_HEIGHT) / testTextureSize.y;
+    scaleX = static_cast<float>(BASE_WIN_WIDTH) / testTextureSize.x;
+    scaleY = static_cast<float>(BASE_WIN_HEIGHT) / testTextureSize.y;
 
     testSprite->setScale({scaleX, scaleY});    
     SpriteManager::addSprite(textureName, testSprite, getId());
@@ -206,7 +206,7 @@ void SpriteChopper::render(sf::RenderWindow& window)
     window.draw(positionText);
     window.draw(animNumText);
 
-    if(animation.spriteSheet != nullptr)
+    if(animation.spriteSheet != nullptr && animation.animFrameRects.size() > 0)
     {
         window.draw(*animation.spriteSheet);
     }
@@ -341,7 +341,7 @@ void SpriteChopper::onMouseMoved (sf::RenderWindow &window, const sf::Event::Mou
 
 void SpriteChopper::loadSpriteData() 
 {
-    std::unordered_map<std::string, std::vector<std::string>> spriteDataRaw = LoadDataCSV("data\\textures\\"+spriteSheetName+"_metadata");
+    std::unordered_map<std::string, std::vector<std::string>> spriteDataRaw = LoadDataCSV("data/textures/"+spriteSheetName+"_metadata");
     for(const auto& animDataStr : spriteDataRaw)
     {
         int animNum = stoi(animDataStr.first);
@@ -401,12 +401,12 @@ void SpriteChopper::saveSpriteData()
                 sf::RectangleShape frameRect = animRects[animIt][rectIt];
 
                 auto frameRectSize = frameRect.getSize();
-                std::string frameRectW = std::to_string(static_cast<int>(frameRectSize.x));
-                std::string frameRectH = std::to_string(static_cast<int>(frameRectSize.y));
+                std::string frameRectW = std::to_string(static_cast<int>(frameRectSize.x*scaleX));
+                std::string frameRectH = std::to_string(static_cast<int>(frameRectSize.y*scaleY));
 
                 auto frameRectPos = frameRect.getPosition();
-                std::string frameRectX = std::to_string(static_cast<int>(frameRectPos.x));
-                std::string frameRectY = std::to_string(static_cast<int>(frameRectPos.y));
+                std::string frameRectX = std::to_string(static_cast<int>(frameRectPos.x*scaleX));
+                std::string frameRectY = std::to_string(static_cast<int>(frameRectPos.y*scaleY));
 
                 std::string animString = '|' + frameRectW + ',' + frameRectH + ',' + frameRectX + ',' + frameRectY;
                 animDataStrings[animIt] += animString;

@@ -48,6 +48,8 @@ protected:
 
     int activeVertIndex;
 
+    float scaleX, scaleY;
+
     SpriteSheetAnimation animation;
 
     std::vector<std::vector<sf::RectangleShape>> getAnimRects(bool saving);

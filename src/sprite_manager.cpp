@@ -4,18 +4,20 @@
 std::map<unsigned int, std::map<std::string, sf::Sprite*>> SpriteManager::SPRITES_BY_ID; // Map to store textures
 std::map<std::string, std::map<std::string, std::string>> TEXTURE_METADATA; // Map to store animated texture metadata
 
-SpriteSheetAnimation::SpriteSheetAnimation(std::string filePath) : animIt(0), frameIt(0), frameDuration(16), frameTime(0)
+SpriteSheetAnimation::SpriteSheetAnimation(std::string filePath) : animIt(0), frameIt(0), frameDuration(128), frameTime(0)
 {
     sf::Texture* texture = TextureManager::loadTexture("Halberdier", filePath+".png");
+    std::cout << "TEXTURE SIZE :: " << texture->getSize().x << "," << texture->getSize().y << std::endl;
     if(texture != nullptr)
     {
         spriteSheet = new sf::Sprite(*texture);
+        // spriteSheet->setColor({255,255,255,150});
     }
     else
     {
         std::cout << "FAILED TO LOAD TEXTURE";
     }
-    std::unordered_map<std::string, std::vector<std::string>> spriteDataRaw = LoadDataCSV("data\\textures\\"+filePath+"_metadata");
+    std::unordered_map<std::string, std::vector<std::string>> spriteDataRaw = LoadDataCSV("data/textures/"+filePath+"_metadata");
     for(const auto& animDataStr : spriteDataRaw)
     {
         // New animation within the spritesheet
@@ -32,16 +34,23 @@ SpriteSheetAnimation::SpriteSheetAnimation(std::string filePath) : animIt(0), fr
             // 
             sf::IntRect frameRect;
 
+            std::cout << "RData: " << rectDataStr << std::endl;
+        
             frameRect.size.x = stoi(rectData[0]);
             frameRect.size.y = stoi(rectData[1]);
             frameRect.position.x = stoi(rectData[2]);
             frameRect.position.y = stoi(rectData[3]);
 
-            std::cout << "Anim Frame: " << frameRect.position.x << "," << frameRect.position.y << std::endl;
+            std::cout << "Anim Frame: " << std::endl << "...pos: " << frameRect.position.x << "," << frameRect.position.y << std::endl;
+            std::cout << "...size:" << frameRect.size.x << "," << frameRect.size.y << std::endl;
 
             animFrameRects[animNum].push_back(frameRect);
             frameNum++;
         }
+    }
+    if(animFrameRects.size() > 0 && animFrameRects[0].size() > 0)
+    {
+         spriteSheet->setTextureRect(animFrameRects[animIt][frameIt]);
     }
 }
 
@@ -51,14 +60,24 @@ void SpriteSheetAnimation::Update(sf::RenderWindow& window, float deltaTime)
     if (frameTime >= frameDuration)
     {
         frameTime = 0;
-        if (frameIt == animFrameRects[animIt].size() - 1)
+        if(animFrameRects.size() == 0 || animFrameRects[animIt].size() == 0)
         {
-            frameIt = 0;
+            return;
+        }
+        // std::cout << "FRAMEIT " << frameIt << std::endl;
+        // std::cout << "ANIMSIZE " << animFrameRects[animIt].size() << std::endl;
+
+        if(frameIt <= animFrameRects[animIt].size() - 1)
+        {
+            //std::cout << "FRAME# " << frameIt << std::endl;
+            sf::IntRect frameRect = animFrameRects[animIt][frameIt];
+            // std::cout << "FRAME DEBUG: " << frameIt << "| " << frameRect.position.x << ", " << frameRect.position.y << ", " << frameRect.size.x << ", " << frameRect.size.y << std::endl;
+            spriteSheet->setTextureRect(frameRect);
+            frameIt++;
         }
         else
         {
-            frameIt++;
-            spriteSheet->setTextureRect(animFrameRects[animIt][frameIt]);
+            frameIt = 0;
         }
     }
 }

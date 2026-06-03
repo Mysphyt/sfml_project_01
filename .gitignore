@@ -1,3 +1,4 @@
 SFML*
 .git
 bin/*.o
+build/

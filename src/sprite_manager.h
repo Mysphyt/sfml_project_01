@@ -15,6 +15,10 @@ public:
     void Update(sf::RenderWindow& window, float deltaTime);
 
     sf::Sprite* spriteSheet;
+
+    // TODO: make this private and write "hasFrames()" or "getFrameCount()"
+    std::vector<std::vector<sf::IntRect>> animFrameRects;
+
 private:
     std::string textureName; // to index SPRITE_SHEET_DATA from texture_manager
 
@@ -22,7 +26,6 @@ private:
 
     unsigned int animIt, frameIt, frameDuration, frameTime;
 
-    std::vector<std::vector<sf::IntRect>> animFrameRects;
 };
 
 class SpriteManager {
