@@ -18,9 +18,9 @@ std::vector<std::string> SplitString(const std::string &input, char delimiter)
     return tokens;
 }
 
-std::unordered_map<std::string, std::vector<std::string>> LoadDataCSV(const std::filesystem::path& filePath)
+std::map<std::string, std::vector<std::string>> LoadDataCSV(const std::filesystem::path& filePath)
 {
-    std::unordered_map<std::string, std::vector<std::string>> result;
+    std::map<std::string, std::vector<std::string>> result;
     std::ifstream file(filePath);
 
     if (!file.is_open()) { 

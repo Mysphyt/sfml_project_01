@@ -1,4 +1,2 @@
 sprite chopper
-    fix mouse<>vertex collision bug 
-    allow movement of animation preview
-    fix todos
+    fix data loss in up and down scaling

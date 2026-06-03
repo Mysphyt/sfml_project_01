@@ -1,7 +1,7 @@
 #ifndef DATA_H
 #define DATA_H
 
-#include <unordered_map>
+#include <map>
 #include <fstream>
 #include <sstream>
 #include <filesystem>
@@ -13,7 +13,7 @@
 
 std::vector<std::string> SplitString(const std::string &input, char delimiter);
 
-std::unordered_map<std::string, std::vector<std::string>> LoadDataCSV(const std::filesystem::path& filePath);
+std::map<std::string, std::vector<std::string>> LoadDataCSV(const std::filesystem::path& filePath);
 
 class ObjData {
     // Objects with unique "id" values, each new object increments the counter

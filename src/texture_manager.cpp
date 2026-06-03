@@ -42,7 +42,7 @@ void TextureManager::loadMetadata()
 {
     std::filesystem::path metadataFilePath = "data/textures/texture_metadata.csv";
 
-    std::unordered_map<std::string, std::vector<std::string>> metadata = LoadDataCSV(metadataFilePath);
+    std::map<std::string, std::vector<std::string>> metadata = LoadDataCSV(metadataFilePath);
 
     for (auto it = metadata.begin(); it != metadata.end(); it++)
     {

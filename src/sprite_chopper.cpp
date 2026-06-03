@@ -155,8 +155,8 @@ void SpriteChopper::render(sf::RenderWindow& window)
             float radius = vertCircle.getRadius();
             vertCircle.setPosition({vert.x, vert.y});
 
-            bool vertContainsMouseX = (currMousePos.x - 5.f >= vert.x) && (currMousePos.x + 5.f <= vert.x);
-            bool vertContainsMouseY = (currMousePos.y - 5.f >= vert.y) && (currMousePos.y + 5.f <= vert.y);
+            bool vertContainsMouseX = (currMousePos.x >= vert.x - 5) && (currMousePos.x <= vert.x + 5);
+            bool vertContainsMouseY = (currMousePos.y >= vert.y - 5) && (currMousePos.y <= vert.y + 5);
 
             // TODO: move circle logic to update when the mouse moves, not every frame
             if((vertContainsMouseX && vertContainsMouseY) && currAnimIndex == animIndex)
@@ -248,7 +248,9 @@ void SpriteChopper::onKeyPressed (sf::RenderWindow &window, const sf::Event::Key
             currAnimIndex++;
             animNumText.setString(std::to_string(currAnimIndex)); 
 
+            // TODO: make this a method
             animation.animIt = currAnimIndex;
+            animation.animFrameRects.push_back({});
 
             // Add placeholder element to data vectors
             spriteSheetAnimationVertices.push_back({});
@@ -265,6 +267,7 @@ void SpriteChopper::onKeyPressed (sf::RenderWindow &window, const sf::Event::Key
                 break;
                        
             animNumText.setString(std::to_string(currAnimIndex)); 
+            animation.animIt = currAnimIndex;
 
             // Add placeholder element to data vectors
             spriteSheetAnimationVertices.push_back({});
@@ -284,6 +287,7 @@ void SpriteChopper::onKeyPressed (sf::RenderWindow &window, const sf::Event::Key
         {
             saveSpriteData();
             animation = SpriteSheetAnimation(spriteSheetName);
+            animation.animIt = currAnimIndex;
             break;
         }
         default:
@@ -351,7 +355,7 @@ void SpriteChopper::onMouseMoved (sf::RenderWindow &window, const sf::Event::Mou
 
 void SpriteChopper::loadSpriteData() 
 {
-    std::unordered_map<std::string, std::vector<std::string>> spriteDataRaw = LoadDataCSV("data/textures/"+spriteSheetName+"_metadata");
+    std::map<std::string, std::vector<std::string>> spriteDataRaw = LoadDataCSV("data/textures/"+spriteSheetName+"_metadata");
     for(const auto& animDataStr : spriteDataRaw)
     {
         int animNum = stoi(animDataStr.first);
@@ -398,13 +402,12 @@ void SpriteChopper::saveSpriteData()
     std::cout<<"Writing to file " <<metadataFilePath<<std::endl;
     std::ofstream file(metadataFilePath);
 
-    std::vector<std::string> animDataStrings;
-
     if (file.is_open()) {
+
         animRects = getAnimRects(true);
         for (int animIt = 0; animIt < animRects.size(); animIt++) 
         {
-            animDataStrings.push_back(std::to_string(animIt)+":");
+            std::string animString = "";
             for (int rectIt = 0; rectIt < animRects[animIt].size(); rectIt++)
             {
                 sf::RectangleShape frameRect = animRects[animIt][rectIt];
@@ -417,14 +420,14 @@ void SpriteChopper::saveSpriteData()
                 std::string frameRectX = std::to_string(static_cast<int>(frameRectPos.x/scaleX));
                 std::string frameRectY = std::to_string(static_cast<int>(frameRectPos.y/scaleY));
 
-                std::string animString = '|' + frameRectW + ',' + frameRectH + ',' + frameRectX + ',' + frameRectY;
-                animDataStrings[animIt] += animString;
+                animString += '|' + frameRectW + ',' + frameRectH + ',' + frameRectX + ',' + frameRectY;
                 std::cout << animString << std::endl;
             }
-        }
-        for(auto animString : animDataStrings)
-        {
-            file << animString << std::endl;
+            if(animString != "") 
+            {
+                animString = std::to_string(animIt)+":"+ animString;
+                file << animString << std::endl;
+            }
         }
         file.close();
     } 

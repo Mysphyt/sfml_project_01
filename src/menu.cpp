@@ -218,7 +218,7 @@ void Menu::CheckMouseCollisions(float mouseX, float mouseY)
 
 Menu LoadMenuFromFile(const std::filesystem::path& filePath)
 {
-    std::unordered_map<std::string, std::vector<std::string>> csvData = LoadDataCSV(filePath);
+    std::map<std::string, std::vector<std::string>> csvData = LoadDataCSV(filePath);
 
     std::vector<std::string> menuData = csvData["MENU"];
     std::string menuStr = menuData[0];
