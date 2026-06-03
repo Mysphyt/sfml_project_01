@@ -16,16 +16,16 @@ public:
 
     sf::Sprite* spriteSheet;
 
-    // TODO: make this private and write "hasFrames()" or "getFrameCount()"
+    // TODO: make these private and write "hasFrames()" or "getFrameCount()"
     std::vector<std::vector<sf::IntRect>> animFrameRects;
+    unsigned int animIt;
 
 private:
     std::string textureName; // to index SPRITE_SHEET_DATA from texture_manager
 
     std::string animationName; // to index the map of animations for this textureName in SPRITE_SHEET_DATA
 
-    unsigned int animIt, frameIt, frameDuration, frameTime;
-
+    unsigned int frameIt, frameDuration, frameTime;
 };
 
 class SpriteManager {

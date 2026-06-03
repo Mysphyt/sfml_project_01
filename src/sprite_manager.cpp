@@ -11,7 +11,7 @@ SpriteSheetAnimation::SpriteSheetAnimation(std::string filePath) : animIt(0), fr
     if(texture != nullptr)
     {
         spriteSheet = new sf::Sprite(*texture);
-        // spriteSheet->setColor({255,255,255,150});
+        spriteSheet->setPosition({500,500});
     }
     else
     {
@@ -73,6 +73,7 @@ void SpriteSheetAnimation::Update(sf::RenderWindow& window, float deltaTime)
             sf::IntRect frameRect = animFrameRects[animIt][frameIt];
             // std::cout << "FRAME DEBUG: " << frameIt << "| " << frameRect.position.x << ", " << frameRect.position.y << ", " << frameRect.size.x << ", " << frameRect.size.y << std::endl;
             spriteSheet->setTextureRect(frameRect);
+            spriteSheet->setOrigin({0,frameRect.size.y});
             frameIt++;
         }
         else

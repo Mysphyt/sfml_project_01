@@ -41,6 +41,8 @@ SpriteChopper::SpriteChopper(
     scaleX = static_cast<float>(BASE_WIN_WIDTH) / testTextureSize.x;
     scaleY = static_cast<float>(BASE_WIN_HEIGHT) / testTextureSize.y;
 
+    std::cout << "SCALE... " << scaleX << ", " << scaleY << std::endl;
+
     testSprite->setScale({scaleX, scaleY});    
     SpriteManager::addSprite(textureName, testSprite, getId());
 
@@ -206,7 +208,7 @@ void SpriteChopper::render(sf::RenderWindow& window)
     window.draw(positionText);
     window.draw(animNumText);
 
-    if(animation.spriteSheet != nullptr && animation.animFrameRects.size() > 0)
+    if(animation.spriteSheet != nullptr && animation.animFrameRects.size() > 0 && animation.animFrameRects[animation.animIt].size() > 0)
     {
         window.draw(*animation.spriteSheet);
     }
@@ -354,8 +356,8 @@ void SpriteChopper::loadSpriteData()
         {
             std::vector<std::string> rectData = SplitString(rectDataStr, ',');
             // 
-            int animX = stoi(rectData[2]);
-            int animY = stoi(rectData[3]);
+            int animX = stoi(rectData[2])*scaleX;
+            int animY = stoi(rectData[3])*scaleY;
             if (vertNum == 0)
             {
                 // First vertex is the bottom-left corner of each animation, add height to Y
@@ -401,12 +403,12 @@ void SpriteChopper::saveSpriteData()
                 sf::RectangleShape frameRect = animRects[animIt][rectIt];
 
                 auto frameRectSize = frameRect.getSize();
-                std::string frameRectW = std::to_string(static_cast<int>(frameRectSize.x*scaleX));
-                std::string frameRectH = std::to_string(static_cast<int>(frameRectSize.y*scaleY));
+                std::string frameRectW = std::to_string(static_cast<int>(frameRectSize.x/scaleX));
+                std::string frameRectH = std::to_string(static_cast<int>(frameRectSize.y/scaleY));
 
                 auto frameRectPos = frameRect.getPosition();
-                std::string frameRectX = std::to_string(static_cast<int>(frameRectPos.x*scaleX));
-                std::string frameRectY = std::to_string(static_cast<int>(frameRectPos.y*scaleY));
+                std::string frameRectX = std::to_string(static_cast<int>(frameRectPos.x/scaleX));
+                std::string frameRectY = std::to_string(static_cast<int>(frameRectPos.y/scaleY));
 
                 std::string animString = '|' + frameRectW + ',' + frameRectH + ',' + frameRectX + ',' + frameRectY;
                 animDataStrings[animIt] += animString;
