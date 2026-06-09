@@ -19,6 +19,88 @@ SpriteSheetAnimation::SpriteSheetAnimation(std::string filePath) : animIt(0), fr
         std::cout << "FAILED TO LOAD TEXTURE";
     }
     std::map<std::string, std::vector<std::string>> spriteDataRaw = LoadDataCSV("data/textures/"+filePath+"_metadata");
+    std::vector<std::vector<sf::Vector2i>> animationList;
+
+    std::cout << "Initializing animation for " << filePath << std::endl;
+
+    int animIt = 0, vertIt = 0;
+    for(const auto& animDataStr : spriteDataRaw)
+    {
+        // New animation within the spritesheet
+        int animNum = stoi(animDataStr.first);
+
+        std::cout << "Anim#" << animIt;
+        std::cout << animDataStr.second[0] << std::endl;
+
+        std::vector<std::string> animFrames = SplitString(animDataStr.second[0], '|');
+        animationList.push_back({});
+
+        for(const auto& vertDataStr : animFrames) 
+        {
+            std::cout << "vertex#" << vertIt;
+            std::vector<std::string> vertData = SplitString(vertDataStr, ',');
+
+            int vertX = stoi(vertData[0]);
+            int vertY = stoi(vertData[1]);
+
+            std::cout << " " << vertData[0] << "," << vertData[1] << std::endl;
+            animationList[animIt].push_back({vertX, vertY});
+            vertIt++;
+        }
+        animIt++;
+    }
+    std::cout << "generating frame data..." << std::endl;
+    for (animIt = 0; animIt < animationList.size(); animIt++) // For each animation
+    {
+        animFrameRects.push_back({});
+
+        auto animVerts = animationList[animIt];
+
+        sf::Vector2i anchorVert;
+        if (animVerts.size() > 0)
+        {
+            anchorVert = animVerts[0];
+        }
+        else
+        {
+            continue;
+        }
+
+        for (vertIt = 0; vertIt < animVerts.size(); vertIt++)
+        {
+            sf::Vector2i currAnimVert, nextAnimVert = {0,0};
+            float rectWidth, rectHeight, rectPosX, rectPosY = 0;
+
+            std::cout << "vertex#" << vertIt << " " << animVerts[vertIt].x << "," << animVerts[vertIt].y << std::endl;
+
+            if(vertIt < animVerts.size() - 1) // Not the last index
+            {
+                currAnimVert = animVerts[vertIt];  
+                nextAnimVert = animVerts[vertIt+1];
+            }
+            else
+            {
+                continue;
+            }
+
+            rectWidth = nextAnimVert.x - currAnimVert.x;
+            rectHeight = anchorVert.y - nextAnimVert.y;
+
+            rectPosX = currAnimVert.x;
+            rectPosY = nextAnimVert.y;
+
+            sf::IntRect frameRect;
+
+            frameRect.size.x = rectWidth;
+            frameRect.size.y = rectHeight;
+            frameRect.position.x = rectPosX;
+            frameRect.position.y = rectPosY;
+
+            std::cout << "Rect#" << vertIt << " " << rectPosX << "," << rectPosY << "|" << rectWidth << "," << rectHeight << std::endl;
+            animFrameRects[animIt].push_back(frameRect);
+        }
+    }
+    /*
     for(const auto& animDataStr : spriteDataRaw)
     {
         // New animation within the spritesheet
@@ -30,7 +112,6 @@ SpriteSheetAnimation::SpriteSheetAnimation(std::string filePath) : animIt(0), fr
         for(const auto& rectDataStr : animFrames) 
         {
             std::vector<std::string> rectData = SplitString(rectDataStr, ',');
-            // 
             sf::IntRect frameRect;
 
             frameRect.size.x = stoi(rectData[0]);
@@ -41,10 +122,12 @@ SpriteSheetAnimation::SpriteSheetAnimation(std::string filePath) : animIt(0), fr
             animFrameRects[animNum].push_back(frameRect);
         }
     }
+    */
     if(animFrameRects.size() > 0 && animFrameRects[0].size() > 0)
     {
-         spriteSheet->setTextureRect(animFrameRects[animIt][frameIt]);
+         spriteSheet->setTextureRect(animFrameRects[0][0]);
     }
+    std::cout << "Done loading metadata for " << filePath << std::endl;
 }
 
 void SpriteSheetAnimation::Update(sf::RenderWindow& window, float deltaTime) 

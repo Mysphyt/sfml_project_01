@@ -53,7 +53,7 @@ protected:
     std::vector<std::vector<sf::RectangleShape>> getAnimRects(sf::RenderWindow& window, bool saving);
     std::vector<std::vector<sf::RectangleShape>> animRects;
 
-    std::vector<std::vector<sf::Vector2i>> spriteSheetAnimationVertices;
+    std::vector<std::vector<sf::Vector2i>> sheetAnimVerts;
     // std::vector<unsigned int> spriteSheetAnimationFloors;
     std::vector<unsigned int> spriteSheetAnimationXBounds;
 

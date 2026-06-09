@@ -59,20 +59,22 @@ SpriteChopper::SpriteChopper(
     window.setFramerateLimit(60);
 
     loadSpriteData();
+    animRects = getAnimRects(window, false);
+    animation.spriteSheet->setScale({scaleX, scaleY});
 }
 
 std::vector<std::vector<sf::RectangleShape>> SpriteChopper::getAnimRects(sf::RenderWindow& window, bool saving)
 {
     std::vector<std::vector<sf::RectangleShape>> newAnimRects = {};
-    for (int animIt = 0; animIt < spriteSheetAnimationVertices.size(); animIt++) // For each animation
+    for (int animIt = 0; animIt < sheetAnimVerts.size(); animIt++) // For each animation
     {
         newAnimRects.push_back({});
-        auto animVerts = spriteSheetAnimationVertices[animIt];
+        auto animVerts = sheetAnimVerts[animIt];
 
-        sf::Vector2i anchorVert;
+        sf::Vector2f anchorVert;
         if (animVerts.size() > 0)
         {
-            anchorVert = animVerts[0];
+            anchorVert = window.mapPixelToCoords(animVerts[0]);
         }
         else
         {
@@ -147,14 +149,14 @@ void SpriteChopper::render(sf::RenderWindow& window)
     std::vector<sf::CircleShape> vertCircles;
     activeVertIndex = -1;
     sf::Vector2f mouseWorldCoords = window.mapPixelToCoords(currMousePos);
-    for(int animIndex = 0; animIndex < spriteSheetAnimationVertices.size(); animIndex++)
+    for(int animIndex = 0; animIndex < sheetAnimVerts.size(); animIndex++)
     {
-        for(int vertIndex = 0; vertIndex < spriteSheetAnimationVertices[animIndex].size(); vertIndex++)
+        for(int vertIndex = 0; vertIndex < sheetAnimVerts[animIndex].size(); vertIndex++)
         {
-            sf::Vector2i vert = spriteSheetAnimationVertices[animIndex][vertIndex];
+            sf::Vector2f vert = window.mapPixelToCoords(sheetAnimVerts[animIndex][vertIndex]);
             sf::CircleShape vertCircle(4.f);    
             float radius = vertCircle.getRadius();
-            vertCircle.setPosition(window.mapPixelToCoords({vert.x, vert.y}));
+            vertCircle.setPosition({vert.x, vert.y});
 
             bool vertContainsMouseX = (mouseWorldCoords.x >= vert.x - 5) && (mouseWorldCoords.x <= vert.x + 5);
             bool vertContainsMouseY = (mouseWorldCoords.y >= vert.y - 5) && (mouseWorldCoords.y <= vert.y + 5);
@@ -233,15 +235,15 @@ void SpriteChopper::onKeyPressed (sf::RenderWindow &window, const sf::Event::Key
     {
         case sf::Keyboard::Scancode::D: // Next animation
         {
-            if(spriteSheetAnimationVertices[currAnimIndex].size() > 0)
-                spriteSheetAnimationVertices[currAnimIndex].pop_back();
+            if(sheetAnimVerts[currAnimIndex].size() > 0)
+                sheetAnimVerts[currAnimIndex].pop_back();
             animRects = getAnimRects(window, false);
             break;
         }
         case sf::Keyboard::Scancode::N: // Next animation
         {
             // Update the animation index
-            if(currAnimIndex >= spriteSheetAnimationVertices.size() -1 && spriteSheetAnimationVertices[currAnimIndex].size() == 0)
+            if(currAnimIndex >= sheetAnimVerts.size() -1 && sheetAnimVerts[currAnimIndex].size() == 0)
             {
                 break;
             }
@@ -254,7 +256,7 @@ void SpriteChopper::onKeyPressed (sf::RenderWindow &window, const sf::Event::Key
             animation.animFrameRects.push_back({});
 
             // Add placeholder element to data vectors
-            spriteSheetAnimationVertices.push_back({});
+            sheetAnimVerts.push_back({});
             animRects = getAnimRects(window, false);
 
             break;
@@ -271,7 +273,7 @@ void SpriteChopper::onKeyPressed (sf::RenderWindow &window, const sf::Event::Key
             animation.animIt = currAnimIndex;
 
             // Add placeholder element to data vectors
-            spriteSheetAnimationVertices.push_back({});
+            sheetAnimVerts.push_back({});
             animRects = getAnimRects(window, false);
 
             break;
@@ -312,19 +314,19 @@ void SpriteChopper::onMouseButtonReleased (sf::RenderWindow &window, const sf::E
 
 void SpriteChopper::onMouseButtonPressed (sf::RenderWindow &window, const sf::Event::MouseButtonPressed& mouseButtonPressed)
 {
-    if(activeVertIndex > 0)
+    if(activeVertIndex >= 0)
     {
         return;
     }
 
     animNumText.setString(std::to_string(currAnimIndex));
 
-    if(currAnimIndex >= spriteSheetAnimationVertices.size())
+    if(currAnimIndex >= sheetAnimVerts.size())
     {
-        spriteSheetAnimationVertices.push_back({});
+        sheetAnimVerts.push_back({});
     }
 
-    spriteSheetAnimationVertices[currAnimIndex].push_back(currMousePos);
+    sheetAnimVerts[currAnimIndex].push_back(currMousePos);
 
     animRects = getAnimRects(window, false);
 }
@@ -341,7 +343,7 @@ void SpriteChopper::onMouseMoved (sf::RenderWindow &window, const sf::Event::Mou
 
     if(activeVertIndex >= 0 && sf::Mouse::isButtonPressed(sf::Mouse::Button::Left))
     {
-        spriteSheetAnimationVertices[currAnimIndex][activeVertIndex] = currMousePos;
+        sheetAnimVerts[currAnimIndex][activeVertIndex] = currMousePos;
         animRects = getAnimRects(window, true);
     }
     else if(animRects.size() > 0)
@@ -360,13 +362,19 @@ void SpriteChopper::loadSpriteData()
         // TODO: first value should be the animation name, index can be inferred
         int animNum = stoi(animDataStr.first);
 
-        spriteSheetAnimationVertices.push_back({});
+        sheetAnimVerts.push_back({});
         std::vector<std::string> animFrames = SplitString(animDataStr.second[0], DATA_DELIM);
 
         int vertNum = 0;
         for(const auto& rectDataStr : animFrames) 
         {
-            std::vector<std::string> rectData = SplitString(rectDataStr, ',');
+            std::vector<std::string> vertData = SplitString(rectDataStr, ',');
+
+            int vertX = stoi(vertData[0]);
+            int vertY = stoi(vertData[1]);
+           
+            sheetAnimVerts[animNum].push_back({vertX, vertY});
+            /*
             // 
             int animX = stof(rectData[2]);
             int animY = stof(rectData[3]);
@@ -380,21 +388,22 @@ void SpriteChopper::loadSpriteData()
             if (vertNum == 0)
             {
                 // First vertex is the bottom-left corner of each animation, add height to Y for "anchor" vertex
-                spriteSheetAnimationVertices[animNum].push_back({animX,animY+(stof(rectData[1])*animSpriteScale.y)}); 
+                sheetAnimVerts[animNum].push_back({animX,animY+(stof(rectData[1])*animSpriteScale.y)}); 
+                continue;
             }
-           
 
             // Vertex is the top-right corner of each frame
             animX+=stof(rectData[0])*animSpriteScale.x;
 
-            spriteSheetAnimationVertices[animNum].push_back({animX,animY});
+            sheetAnimVerts[animNum].push_back({animX,animY});
 
             vertNum++;
+            */
         }
     }
-    if (spriteSheetAnimationVertices.size() > 0)
+    if (sheetAnimVerts.size() > 0)
     {
-        currAnimIndex = spriteSheetAnimationVertices.size() - 1;
+        currAnimIndex = sheetAnimVerts.size() - 1;
     }
     else
     {
@@ -412,9 +421,26 @@ void SpriteChopper::saveSpriteData()
     sf::Vector2f animSpriteScale = testSprite->getScale();
     if (file.is_open()) 
     {
-        for (int animIt = 0; animIt < animRects.size(); animIt++) 
+        for (int animIt = 0; animIt < sheetAnimVerts.size(); animIt++) 
         {
             std::string animString = "";
+
+            for (int vertIt = 0; vertIt < sheetAnimVerts[animIt].size(); vertIt++)
+            {
+                sf::Vector2i  animVert = sheetAnimVerts[animIt][vertIt];
+                animString += '|' + std::to_string(animVert.x) + ',' + std::to_string(animVert.y);
+            }
+
+            if(animString != "") 
+            {
+                animString = std::to_string(animIt)+":"+ animString;
+                file << animString << std::endl;
+                std::cout << "Line#" << animIt << ": " << animString << std::endl;
+            }
+        }
+        /*
+        for (int animIt = 0; animIt < animRects.size(); animIt++) 
+        {
             for (int rectIt = 0; rectIt < animRects[animIt].size(); rectIt++)
             {
                 sf::RectangleShape frameRect = animRects[animIt][rectIt];
@@ -444,12 +470,8 @@ void SpriteChopper::saveSpriteData()
                 animString += '|' + frameRectWStr + ',' + frameRectHStr + ',' + frameRectXStr + ',' + frameRectYStr;
                 std::cout << animString << std::endl;
             }
-            if(animString != "") 
-            {
-                animString = std::to_string(animIt)+":"+ animString;
-                file << animString << std::endl;
-            }
         }
+        */
         file.close();
     } 
     else 

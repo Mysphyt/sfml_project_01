@@ -20,7 +20,8 @@ const void onClose (sf::RenderWindow& window, const sf::Event::Closed& closed)
 
 const void onResized (sf::RenderWindow& window, const sf::Event::Resized& resized)
 {
-    /* TODO: Why does this crash my linux system
+    // TODO: Why does this crash my linux system
+
     Debug("new width: "+std::to_string(resized.size.x));
     Debug("new height: "+std::to_string(resized.size.y));
 
@@ -33,7 +34,6 @@ const void onResized (sf::RenderWindow& window, const sf::Event::Resized& resize
 
     window.setView(sf::View(sf::FloatRect({0.f, 0.f}, {BASE_WIN_WIDTH, BASE_WIN_HEIGHT})));
     window.setFramerateLimit(60);
-    */
 };
 
 const void onKeyPressed (sf::RenderWindow &window, const sf::Event::KeyPressed& keyPressed)
@@ -79,16 +79,15 @@ const void onMouseButtonPressed (sf::RenderWindow &window, const sf::Event::Mous
     if (mouseButtonPressed.button == sf::Mouse::Button::Right)
     {
         Debug("the right button was pressed");
-        Debug("mouse x: "+std::to_string(mouseButtonPressed.position.x));
-        Debug("mouse y: "+std::to_string(mouseButtonPressed.position.y));
     }
     else if (mouseButtonPressed.button == sf::Mouse::Button::Left)
     {
         Debug("the left button was pressed");
-        Debug("mouse x: "+std::to_string(mouseButtonPressed.position.x));
-        Debug("mouse y: "+std::to_string(mouseButtonPressed.position.y));
     }
 
+    Debug("mouse x: "+std::to_string(mouseButtonPressed.position.x));
+    Debug("mouse y: "+std::to_string(mouseButtonPressed.position.y));
+ 
     // Branching logic for different menu buttons
     if(CURR_PROGRAM_STATE == ProgramState::MENU & MENUS.top().activeButtonIndex != -1)  // Check if there is an active button
     {
