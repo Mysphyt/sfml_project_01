@@ -48,11 +48,9 @@ protected:
 
     int activeVertIndex;
 
-    float scaleX, scaleY;
-
     SpriteSheetAnimation animation;
 
-    std::vector<std::vector<sf::RectangleShape>> getAnimRects(bool saving);
+    std::vector<std::vector<sf::RectangleShape>> getAnimRects(sf::RenderWindow& window, bool saving);
     std::vector<std::vector<sf::RectangleShape>> animRects;
 
     std::vector<std::vector<sf::Vector2i>> spriteSheetAnimationVertices;
@@ -66,6 +64,8 @@ protected:
     sf::Text positionText, animNumText;
 
     sf::Vector2i currMousePos;
+
+    sf::Sprite* testSprite; 
 };
 
 #endif

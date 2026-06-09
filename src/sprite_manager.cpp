@@ -21,8 +21,6 @@ SpriteSheetAnimation::SpriteSheetAnimation(std::string filePath) : animIt(0), fr
     std::map<std::string, std::vector<std::string>> spriteDataRaw = LoadDataCSV("data/textures/"+filePath+"_metadata");
     for(const auto& animDataStr : spriteDataRaw)
     {
-        std::cout << "OK..."  <<std::endl;
-        std::cout << "animDataStr: " << animDataStr.first << " ... " << animDataStr.second[0] << std::endl;
         // New animation within the spritesheet
         int animNum = stoi(animDataStr.first);
         animFrameRects.push_back({});
@@ -35,21 +33,14 @@ SpriteSheetAnimation::SpriteSheetAnimation(std::string filePath) : animIt(0), fr
             // 
             sf::IntRect frameRect;
 
-            std::cout << "RData: " << rectDataStr << std::endl;
-        
             frameRect.size.x = stoi(rectData[0]);
             frameRect.size.y = stoi(rectData[1]);
             frameRect.position.x = stoi(rectData[2]);
             frameRect.position.y = stoi(rectData[3]);
 
-            std::cout << "Anim #" << animNum << std::endl;
-            std::cout << "...pos: " << frameRect.position.x << "," << frameRect.position.y << std::endl;
-            std::cout << "...size:" << frameRect.size.x << "," << frameRect.size.y << std::endl;
-
             animFrameRects[animNum].push_back(frameRect);
         }
     }
-    std::cout << "DONE ... " << std::endl; 
     if(animFrameRects.size() > 0 && animFrameRects[0].size() > 0)
     {
          spriteSheet->setTextureRect(animFrameRects[animIt][frameIt]);
