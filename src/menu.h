@@ -64,7 +64,7 @@ public:
 
 Menu GenerateTestMenu(float width, float height);
 
-Menu LoadMenuFromFile(const std::filesystem::path& filePath);
+Menu LoadMenuFromFile(sf::RenderWindow& window, const std::filesystem::path& filePath);
 
 extern std::stack<Menu> MENUS;
 

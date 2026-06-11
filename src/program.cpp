@@ -17,6 +17,7 @@ void InitProgram() {
     // create the window
 
     sf::RenderWindow window(sf::VideoMode({BASE_WIN_WIDTH, BASE_WIN_HEIGHT}), "window");
+    window.setView(sf::View(sf::FloatRect({0.f, 0.f}, {BASE_WIN_WIDTH, BASE_WIN_HEIGHT})));
 
     sf::Font* default_font = FontManager::loadFont("default", "myfont.ttf");
 
@@ -25,7 +26,7 @@ void InitProgram() {
     }
  
     std::filesystem::path mainMenuFilePath = "data/menus/main.csv";
-    Menu mainMenu = LoadMenuFromFile(mainMenuFilePath);
+    Menu mainMenu = LoadMenuFromFile(window, mainMenuFilePath);
 
     std::cout << "Loaded MainMenu... " << mainMenu.buttons.size() << std::endl;
 
@@ -103,12 +104,11 @@ void UpdateProgram(sf::RenderWindow& window, float deltaTime)
         },
         [&window](const sf::Event::MouseButtonReleased mouseButtonReleased) {
             onMouseButtonReleased(window, mouseButtonReleased);
+        },
+        //TODO: Resize events crash my Linux system
+        [&window](const sf::Event::Resized resized) {
+            onResized(window, resized);
         }
-
-        //, TODO: Resize events crash my Linux system
-        //[&window](const sf::Event::Resized resized) {
-        //    onResized(window, resized);
-        //}
     );
 }
 

@@ -216,7 +216,7 @@ void Menu::CheckMouseCollisions(float mouseX, float mouseY)
 };
 
 
-Menu LoadMenuFromFile(const std::filesystem::path& filePath)
+Menu LoadMenuFromFile(sf::RenderWindow& window, const std::filesystem::path& filePath)
 {
     std::map<std::string, std::vector<std::string>> csvData = LoadDataCSV(filePath);
 
@@ -242,8 +242,12 @@ Menu LoadMenuFromFile(const std::filesystem::path& filePath)
         std::vector<std::string> dataValues = SplitString(buttonStr, DATA_DELIM);
         std::string buttonName = dataValues[0];
         Debug("Parsing Button: " + buttonName);
-        std::vector<std::string> button_pos = SplitString(dataValues[1], ',');
-        std::vector<std::string> button_size = SplitString(dataValues[2], ',');
+
+        std::vector<std::string> buttonPosStr = SplitString(dataValues[1], ',');
+        std::vector<std::string> buttonSizeStr = SplitString(dataValues[2], ',');
+
+        sf::Vector2f buttonPos = window.mapPixelToCoords({stoi(buttonPosStr[0]), stoi(buttonPosStr[1])});
+        sf::Vector2f buttonSize = window.mapPixelToCoords({stoi(buttonSizeStr[0]), stoi(buttonSizeStr[1])});
 
         int textSize = stoi(dataValues[3]);
         bool centerText = stoi(dataValues[4]);
@@ -257,8 +261,8 @@ Menu LoadMenuFromFile(const std::filesystem::path& filePath)
         sf::Color textColor = ParseColorString(textColorStr);
 
         Button button(
-            stoi(button_pos[0]),stoi(button_pos[1]), // position
-            stoi(button_size[0]),stoi(button_size[1]), // size
+            buttonPos.x, buttonPos.y, // position
+            buttonSize.x, buttonSize.y, // size
             textSize,
             buttonName,
             textColor,

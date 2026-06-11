@@ -12,6 +12,7 @@ SpriteChopper::SpriteChopper(
     std::string textureName,
     std::string textureFile) : 
         Module(moduleName), 
+        currTextureName(textureName),
         positionText(*FontManager::getFont("default")), 
         animNumText(*FontManager::getFont("default")),
         currAnimIndex(0),
@@ -38,8 +39,8 @@ SpriteChopper::SpriteChopper(
     sf::Vector2u testTextureSize = testTexture->getSize();
 
     // Scale the test texture to the curr resolution
-    float scaleX = static_cast<float>(BASE_WIN_WIDTH) / static_cast<float>(testTextureSize.x);
-    float scaleY = static_cast<float>(BASE_WIN_HEIGHT) / static_cast<float>(testTextureSize.y);
+    scaleX = static_cast<float>(BASE_WIN_WIDTH) / static_cast<float>(testTextureSize.x);
+    scaleY = static_cast<float>(BASE_WIN_HEIGHT) / static_cast<float>(testTextureSize.y);
 
     std::cout << "SCALE... " << scaleX << ", " << scaleY << std::endl;
 
@@ -48,9 +49,8 @@ SpriteChopper::SpriteChopper(
 
     // Resize the curr window to the size of the loaded texture
     // TODO: determine if this is necessary or if the sprite can be scaled & use global coordinates
-    sf::Vector2u resized = testTexture->getSize();
 
-    sf::FloatRect visibleArea({0.f, 0.f}, sf::Vector2f(resized));
+    sf::FloatRect visibleArea({0.f, 0.f}, sf::Vector2f(testTextureSize));
 
     // TODO: should call centralized event handling method of Module
     window.close();
@@ -66,8 +66,10 @@ SpriteChopper::SpriteChopper(
 std::vector<std::vector<sf::RectangleShape>> SpriteChopper::getAnimRects(sf::RenderWindow& window, bool saving)
 {
     std::vector<std::vector<sf::RectangleShape>> newAnimRects = {};
+    std::cout << "Generating anim rect tooltips..." << std::endl;
     for (int animIt = 0; animIt < sheetAnimVerts.size(); animIt++) // For each animation
     {
+        std::cout << "Anim#" << animIt << std::endl;
         newAnimRects.push_back({});
         auto animVerts = sheetAnimVerts[animIt];
 
@@ -83,18 +85,35 @@ std::vector<std::vector<sf::RectangleShape>> SpriteChopper::getAnimRects(sf::Ren
 
         for (int vertIt = 0; vertIt < animVerts.size(); vertIt++)
         {
+            std::cout << "> Vert#" << vertIt << " - " << animVerts[vertIt].x << "," << animVerts[vertIt].y << std::endl;
             sf::Vector2f currAnimVert, nextAnimVert = {0,0};
             float rectWidth, rectHeight, rectPosX, rectPosY = 0;
 
+            sf::Vector2i vertex = {animVerts[vertIt].x, animVerts[vertIt].y};
+
+            vertex.x *= scaleX;
+            vertex.y *= scaleY;
+
             if(vertIt < animVerts.size() - 1) // Not the last index
             {
-                currAnimVert = window.mapPixelToCoords(animVerts[vertIt]);  
-                nextAnimVert = window.mapPixelToCoords(animVerts[vertIt+1]);
+                sf::Vector2i nextVertex = {animVerts[vertIt+1].x, animVerts[vertIt+1].y};
+
+                nextVertex.x *= scaleX;
+                nextVertex.y *= scaleY;
+
+                // currAnimVert = animVerts[vertIt];  
+                // nextAnimVert = animVerts[vertIt+1];
+
+                currAnimVert = window.mapPixelToCoords(vertex);  
+                nextAnimVert = window.mapPixelToCoords(nextVertex);
             }
             else if(!(saving || animIt != currAnimIndex) && activeVertIndex == -1) 
             {
                 // Draw the "next" rect to the current mouse position
-                currAnimVert = window.mapPixelToCoords(animVerts[vertIt]);
+                // currAnimVert = animVerts[vertIt];
+                // nextAnimVert = currMousePos;
+
+                currAnimVert = window.mapPixelToCoords(vertex);
                 nextAnimVert = window.mapPixelToCoords(currMousePos);
             }
             else
@@ -118,6 +137,8 @@ std::vector<std::vector<sf::RectangleShape>> SpriteChopper::getAnimRects(sf::Ren
             else
                 newAnimRect.setOutlineColor(TRANSPARENT_TEAL);
             newAnimRects[animIt].push_back(newAnimRect);
+
+            std::cout << "> Rect#" << newAnimRects[animIt].size() << " - " << rectPosX << "," << rectPosY << "|" << rectWidth << "," << rectHeight << std::endl;
         }
     }
     return newAnimRects;
@@ -227,6 +248,18 @@ void SpriteChopper::onClose (sf::RenderWindow& window, const sf::Event::Closed& 
 
 void SpriteChopper::onResized (sf::RenderWindow& window, const sf::Event::Resized& resized)
 {
+    std::cout << "Resizing..." << std::endl;
+    animRects = getAnimRects(window, false);
+
+    sf::Vector2u textureSize = TextureManager::getTexture(currTextureName)->getSize();
+
+    sf::FloatRect visibleArea({0.f, 0.f}, sf::Vector2f(textureSize));
+
+    // TODO: should call centralized event handling method of Module
+    window.close();
+    window.create(sf::VideoMode({static_cast<unsigned int>(visibleArea.size.x), static_cast<unsigned int>(visibleArea.size.y)}), "window"); 
+    window.setView(sf::View(sf::FloatRect({0.f, 0.f}, {BASE_WIN_WIDTH, BASE_WIN_HEIGHT})));
+    window.setFramerateLimit(60);
 }
 
 void SpriteChopper::onKeyPressed (sf::RenderWindow &window, const sf::Event::KeyPressed& keyPressed)
@@ -339,7 +372,9 @@ void SpriteChopper::onMouseMoved (sf::RenderWindow &window, const sf::Event::Mou
     currMousePos.x = mouseMoved.position.x; // mouseWorldCoords.x; 
     currMousePos.y = mouseMoved.position.y; // mouseWorldCoords.y; // sf::Vector2i({roundedX,roundedY});
 
-    positionText.setString(std::to_string(currMousePos.x)+","+std::to_string(currMousePos.y));
+    auto currWorldMousePos = window.mapPixelToCoords(currMousePos);
+
+    positionText.setString(std::to_string(currMousePos.x)+","+std::to_string(currMousePos.y) + " | " + std::to_string(currWorldMousePos.x)+","+std::to_string(currWorldMousePos.y));
 
     if(activeVertIndex >= 0 && sf::Mouse::isButtonPressed(sf::Mouse::Button::Left))
     {
@@ -348,7 +383,7 @@ void SpriteChopper::onMouseMoved (sf::RenderWindow &window, const sf::Event::Mou
     }
     else if(animRects.size() > 0)
     {
-        animRects = getAnimRects(window, false);
+        //animRects = getAnimRects(window, false);
     }
 }
 

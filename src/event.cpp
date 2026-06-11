@@ -33,7 +33,12 @@ const void onResized (sf::RenderWindow& window, const sf::Event::Resized& resize
     window.create(sf::VideoMode({static_cast<unsigned int>(visibleArea.size.x), static_cast<unsigned int>(visibleArea.size.y)}), "window");
 
     window.setView(sf::View(sf::FloatRect({0.f, 0.f}, {BASE_WIN_WIDTH, BASE_WIN_HEIGHT})));
-    window.setFramerateLimit(60);
+    window.setFramerateLimit(TARGET_FRAME_RATE);
+
+    if(CURR_MODULE != nullptr)
+    {
+        CURR_MODULE->onResized(window, resized);
+    }
 };
 
 const void onKeyPressed (sf::RenderWindow &window, const sf::Event::KeyPressed& keyPressed)

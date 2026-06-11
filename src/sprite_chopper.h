@@ -48,6 +48,10 @@ protected:
 
     int activeVertIndex;
 
+    float scaleX, scaleY;
+
+    std::string currTextureName;
+
     SpriteSheetAnimation animation;
 
     std::vector<std::vector<sf::RectangleShape>> getAnimRects(sf::RenderWindow& window, bool saving);

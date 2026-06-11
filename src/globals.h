@@ -11,8 +11,8 @@ enum class ProgramState {
 extern ProgramState CURR_PROGRAM_STATE;
 extern sf::Vector2u WINDOW_SIZE;
 
-inline constexpr unsigned int BASE_WIN_WIDTH = 1280;
-inline constexpr unsigned int BASE_WIN_HEIGHT = 720;
+inline constexpr unsigned int BASE_WIN_WIDTH = 1000;
+inline constexpr unsigned int BASE_WIN_HEIGHT = 1000;
 inline constexpr unsigned int TARGET_FRAME_RATE = 60;
 
 // COLORS_
